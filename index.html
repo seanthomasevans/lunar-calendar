@@ -37,7 +37,7 @@
         /* Hebrew Date - Above moon */
         .hebrew-date {
             position: fixed;
-            top: 22%;
+            top: 20%;
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
@@ -47,19 +47,20 @@
 
         .hebrew-date-hebrew {
             font-family: 'Frank Ruhl Libre', 'Times New Roman', serif;
-            font-size: 28px;
+            font-size: 42px;
             font-weight: 300;
-            color: rgba(255,255,255,0.75);
-            letter-spacing: 3px;
+            color: rgba(255,255,255,0.85);
+            letter-spacing: 4px;
             direction: rtl;
         }
 
-        .hebrew-date-gregorian {
-            font-size: 11px;
+        .hebrew-date-phonetic {
+            font-size: 12px;
             font-weight: 400;
             color: rgba(255,255,255,0.4);
-            letter-spacing: 1px;
-            margin-top: 6px;
+            letter-spacing: 2px;
+            margin-top: 8px;
+            text-transform: lowercase;
         }
 
         /* Month Theme - Top center */
@@ -299,10 +300,10 @@
             margin-top: 2px;
         }
 
-        /* Holiday display */
-        .holiday {
+        /* Chanukah candles display */
+        .chanukah {
             position: fixed;
-            top: 55px;
+            top: 60px;
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
@@ -312,16 +313,60 @@
             transition: opacity 0.5s;
         }
 
-        .holiday.visible {
+        .chanukah.visible {
             opacity: 1;
         }
 
-        .holiday-name {
-            font-size: 11px;
+        .chanukah-candles {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            height: 40px;
+        }
+
+        .candle {
+            width: 4px;
+            height: 24px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 2px 2px 0 0;
+            position: relative;
+        }
+
+        .candle.shamash {
+            height: 30px;
+            margin: 0 8px;
+        }
+
+        .candle.lit {
+            background: rgba(255,220,150,0.5);
+        }
+
+        .candle.lit::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 10px;
+            background: radial-gradient(ellipse at bottom, rgba(255,200,100,0.9) 0%, rgba(255,150,50,0.6) 40%, transparent 70%);
+            border-radius: 50% 50% 20% 20%;
+            animation: flicker 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.8; transform: translateX(-50%) scale(1); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+        }
+
+        .chanukah-night {
+            font-size: 9px;
             font-weight: 400;
             letter-spacing: 2px;
-            color: rgba(255,220,180,0.7);
+            color: rgba(255,220,180,0.5);
             text-transform: uppercase;
+            margin-top: 8px;
         }
 
         /* Forecast - Bottom center strip */
@@ -407,7 +452,7 @@
     <!-- Hebrew Date Display -->
     <div class="hebrew-date" id="hebrewDate">
         <div class="hebrew-date-hebrew" id="hebrewDateHebrew"></div>
-        <div class="hebrew-date-gregorian" id="hebrewDateGregorian"></div>
+        <div class="hebrew-date-phonetic" id="hebrewDatePhonetic"></div>
     </div>
 
     <!-- Month Theme -->
@@ -436,9 +481,10 @@
         <div class="parsha-name" id="parshaName"></div>
     </div>
 
-    <!-- Holiday -->
-    <div class="holiday" id="holiday">
-        <div class="holiday-name" id="holidayName"></div>
+    <!-- Chanukah Candles -->
+    <div class="chanukah" id="chanukah">
+        <div class="chanukah-candles" id="chanukahCandles"></div>
+        <div class="chanukah-night" id="chanukahNight"></div>
     </div>
 
     <div class="forecast" id="forecast"></div>
@@ -497,7 +543,7 @@
             havdalah: null,
             parsha: null,
             omerDay: 0,
-            holiday: null
+            chanukahNight: 0
         };
 
         // Kabbalistic moon phase meanings
@@ -554,20 +600,20 @@
 
         // Month spiritual themes
         const MONTH_THEMES = {
-            'Nisan': { theme: 'Redemption', letter: 'ה', letterName: 'Hei' },
-            'Iyyar': { theme: 'Healing', letter: 'ו', letterName: 'Vav' },
-            'Sivan': { theme: 'Revelation', letter: 'ז', letterName: 'Zayin' },
-            'Tamuz': { theme: 'Vision', letter: 'ח', letterName: 'Chet' },
-            'Av': { theme: 'Hearing', letter: 'ט', letterName: 'Tet' },
-            'Elul': { theme: 'Teshuvah', letter: 'י', letterName: 'Yud' },
-            'Tishrei': { theme: 'Beginning', letter: 'ל', letterName: 'Lamed' },
-            'Cheshvan': { theme: 'Depth', letter: 'נ', letterName: 'Nun' },
-            'Kislev': { theme: 'Dreams', letter: 'ס', letterName: 'Samech' },
-            'Tevet': { theme: 'Rectification', letter: 'ע', letterName: 'Ayin' },
-            'Sh\'vat': { theme: 'Renewal', letter: 'צ', letterName: 'Tzadi' },
-            'Adar': { theme: 'Joy', letter: 'ק', letterName: 'Kuf' },
-            'Adar I': { theme: 'Hidden Joy', letter: 'ק', letterName: 'Kuf' },
-            'Adar II': { theme: 'Revealed Joy', letter: 'ק', letterName: 'Kuf' }
+            'Nisan': { theme: 'Redemption', letter: 'ה', hebrew: 'ניסן', phonetic: 'nisan' },
+            'Iyyar': { theme: 'Healing', letter: 'ו', hebrew: 'אייר', phonetic: 'iyar' },
+            'Sivan': { theme: 'Revelation', letter: 'ז', hebrew: 'סיון', phonetic: 'sivan' },
+            'Tamuz': { theme: 'Vision', letter: 'ח', hebrew: 'תמוז', phonetic: 'tamuz' },
+            'Av': { theme: 'Hearing', letter: 'ט', hebrew: 'אב', phonetic: 'av' },
+            'Elul': { theme: 'Teshuvah', letter: 'י', hebrew: 'אלול', phonetic: 'elul' },
+            'Tishrei': { theme: 'Beginning', letter: 'ל', hebrew: 'תשרי', phonetic: 'tishrei' },
+            'Cheshvan': { theme: 'Depth', letter: 'נ', hebrew: 'חשון', phonetic: 'cheshvan' },
+            'Kislev': { theme: 'Dreams', letter: 'ס', hebrew: 'כסלו', phonetic: 'kislev' },
+            'Tevet': { theme: 'Rectification', letter: 'ע', hebrew: 'טבת', phonetic: 'tevet' },
+            'Sh\'vat': { theme: 'Renewal', letter: 'צ', hebrew: 'שבט', phonetic: 'shvat' },
+            'Adar': { theme: 'Joy', letter: 'ק', hebrew: 'אדר', phonetic: 'adar' },
+            'Adar I': { theme: 'Hidden Joy', letter: 'ק', hebrew: 'אדר א׳', phonetic: 'adar alef' },
+            'Adar II': { theme: 'Revealed Joy', letter: 'ק', hebrew: 'אדר ב׳', phonetic: 'adar bet' }
         };
 
         // Sefirot for Omer counting
@@ -1126,29 +1172,16 @@
         }
 
         function drawMoon() {
-            const now = new Date();
-            const jd = getJulianDate(now);
-            const moonPos = getMoonPosition(jd, CONFIG.LAT, CONFIG.LON);
-
-            if (moonPos.altitude < -5) return;
-
             renderMoon3D();
 
             const mx = W * 0.5;
             const my = H * 0.42;
             const R = Math.min(W, H) * 0.28;
 
-            let moonAlpha = 1;
-            if (moonPos.altitude < 10) {
-                moonAlpha = Math.max(0.2, (moonPos.altitude + 5) / 15);
-            }
-
             if (moonReady && moonCanvas) {
-                ctx.globalAlpha = moonAlpha;
                 ctx.drawImage(moonCanvas, mx - R, my - R, R * 2, R * 2);
-                ctx.globalAlpha = 1;
             } else {
-                ctx.fillStyle = `rgba(200, 200, 210, ${0.3 * moonAlpha})`;
+                ctx.fillStyle = 'rgba(200, 200, 210, 0.3)';
                 ctx.beginPath();
                 ctx.arc(mx, my, R, 0, Math.PI * 2);
                 ctx.fill();
@@ -1426,7 +1459,22 @@
                 hebrewState.havdalah = null;
                 hebrewState.parsha = null;
                 hebrewState.omerDay = 0;
-                hebrewState.holiday = null;
+                hebrewState.chanukahNight = 0;
+
+                // Calculate Chanukah night
+                // Chanukah: 25 Kislev - 2/3 Tevet (8 nights)
+                const month = hebrewState.monthName;
+                const day = hebrewState.dayOfMonth;
+                if (month === 'Kislev' && day >= 25) {
+                    hebrewState.chanukahNight = day - 24; // 25=night 1, 26=night 2, etc.
+                } else if (month === 'Tevet' && day <= 2) {
+                    // Kislev can have 29 or 30 days
+                    // If we're in Tevet, calculate based on remaining nights
+                    const kislev29 = new hebcal.HDate(29, 'Kislev', hebrewState.yearNum);
+                    const kislevDays = kislev29.getDate() === 29 ? 29 : 30;
+                    const nightsInKislev = kislevDays - 24;
+                    hebrewState.chanukahNight = nightsInKislev + day;
+                }
 
                 // Process events
                 events.forEach(ev => {
@@ -1440,8 +1488,6 @@
                         hebrewState.parsha = desc.replace('Parashat ', '');
                     } else if (ev.omer) {
                         hebrewState.omerDay = ev.omer;
-                    } else if (ev.getFlags() & (hebcal.flags.CHAG | hebcal.flags.MAJOR_FAST | hebcal.flags.MINOR_HOLIDAY)) {
-                        hebrewState.holiday = desc;
                     }
                 });
 
@@ -1452,16 +1498,19 @@
         }
 
         function updateHebrewUI() {
-            const { dayOfMonth, monthName, yearNum, isShabbat, isFriday, candleLighting, havdalah, parsha, omerDay, holiday } = hebrewState;
+            const { dayOfMonth, monthName, yearNum, isShabbat, isFriday, candleLighting, havdalah, parsha, omerDay, chanukahNight } = hebrewState;
 
-            // Hebrew date display
+            // Hebrew date display - all Hebrew with phonetic below
+            const theme = MONTH_THEMES[monthName];
             const hebrewDay = hebcal.gematriya(dayOfMonth);
             const hebrewYear = hebcal.gematriya(yearNum % 1000);
-            document.getElementById('hebrewDateHebrew').textContent = `${hebrewDay} ${monthName} ${hebrewYear}`;
-            document.getElementById('hebrewDateGregorian').textContent = `${dayOfMonth} ${monthName} ${yearNum}`;
+            const hebrewMonth = theme ? theme.hebrew : monthName;
+            const phoneticMonth = theme ? theme.phonetic : monthName.toLowerCase();
+
+            document.getElementById('hebrewDateHebrew').textContent = `${hebrewDay} ${hebrewMonth} ${hebrewYear}`;
+            document.getElementById('hebrewDatePhonetic').textContent = `${dayOfMonth} ${phoneticMonth} ${yearNum}`;
 
             // Month theme
-            const theme = MONTH_THEMES[monthName];
             if (theme) {
                 document.getElementById('monthLetter').textContent = theme.letter;
                 document.getElementById('monthThemeText').textContent = theme.theme;
@@ -1511,14 +1560,37 @@
                 omerEl.classList.remove('visible');
             }
 
-            // Holiday display
-            const holidayEl = document.getElementById('holiday');
-            if (holiday) {
-                holidayEl.classList.add('visible');
-                document.getElementById('holidayName').textContent = holiday;
+            // Chanukah candles display
+            const chanukahEl = document.getElementById('chanukah');
+            if (chanukahNight > 0 && chanukahNight <= 8) {
+                chanukahEl.classList.add('visible');
+                updateChanukahCandles(chanukahNight);
             } else {
-                holidayEl.classList.remove('visible');
+                chanukahEl.classList.remove('visible');
             }
+        }
+
+        function updateChanukahCandles(night) {
+            const container = document.getElementById('chanukahCandles');
+            let html = '';
+
+            // Left candles (4)
+            for (let i = 4; i >= 1; i--) {
+                const lit = i <= night ? 'lit' : '';
+                html += `<div class="candle ${lit}"></div>`;
+            }
+
+            // Shamash (always lit during Chanukah)
+            html += `<div class="candle shamash lit"></div>`;
+
+            // Right candles (4)
+            for (let i = 5; i <= 8; i++) {
+                const lit = i <= night ? 'lit' : '';
+                html += `<div class="candle ${lit}"></div>`;
+            }
+
+            container.innerHTML = html;
+            document.getElementById('chanukahNight').textContent = `Night ${night}`;
         }
 
         function updateLunarPhaseUI(dayOfMonth) {
