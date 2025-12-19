@@ -621,6 +621,32 @@
             chanukahNight: 0
         };
 
+        // Shabbat/Yom Tov rest mode state
+        let shabbatMode = {
+            active: false,
+            cachedWeather: null,
+            cachedForecast: null,
+            cachedQuote: null,
+            particleSeed: null,
+            activatedAt: null,
+            nextHavdalah: null,
+            // Intervals to clear when entering Shabbat mode
+            weatherInterval: null,
+            forecastInterval: null
+        };
+
+        // Seeded random number generator for deterministic particle behavior
+        class SeededRandom {
+            constructor(seed) {
+                this.seed = seed;
+            }
+            next() {
+                this.seed = (this.seed * 9301 + 49297) % 233280;
+                return this.seed / 233280;
+            }
+        }
+        let shabbatRandom = null; // Initialized when Shabbat mode activates
+
         // Kabbalistic moon phase meanings
         const MOON_PHASES = {
             newMoon: {
@@ -1583,6 +1609,127 @@
         // HEBREW CALENDAR FUNCTIONS
         // ============================================
 
+        // Major Yom Tov holidays that require rest mode (same as Shabbat)
+        const YOM_TOV_HOLIDAYS = [
+            'Rosh Hashana',
+            'Yom Kippur',
+            'Sukkot I',
+            'Sukkot II',
+            'Shmini Atzeret',
+            'Simchat Torah',
+            'Pesach I',
+            'Pesach II',
+            'Pesach VII',
+            'Pesach VIII',
+            'Shavuot I',
+            'Shavuot II'
+        ];
+
+        // Check if currently in Shabbat or Yom Tov rest period
+        function isRestPeriod(now = new Date()) {
+            if (typeof hebcal === 'undefined') return false;
+
+            try {
+                const location = hebcal.Location.lookup('Toronto');
+
+                // Check a 3-day window to catch candle lighting and havdalah
+                const startCheck = new Date(now);
+                startCheck.setDate(startCheck.getDate() - 1);
+                const endCheck = new Date(now);
+                endCheck.setDate(endCheck.getDate() + 1);
+
+                const events = hebcal.HebrewCalendar.calendar({
+                    start: startCheck,
+                    end: endCheck,
+                    location: location,
+                    candlelighting: true,
+                    yomtov: true
+                });
+
+                let candleLightingTime = null;
+                let havdalahTime = null;
+                let isYomTov = false;
+
+                events.forEach(ev => {
+                    const desc = ev.getDesc();
+                    const eventTime = ev.eventTime;
+
+                    if (desc.startsWith('Candle lighting') && eventTime) {
+                        if (!candleLightingTime || eventTime < candleLightingTime) {
+                            // Get the most recent candle lighting before now
+                            if (eventTime <= now) {
+                                candleLightingTime = eventTime;
+                            }
+                        }
+                    } else if (desc.startsWith('Havdalah') && eventTime) {
+                        // Get the next havdalah after the candle lighting
+                        if (candleLightingTime && eventTime > candleLightingTime) {
+                            if (!havdalahTime || eventTime < havdalahTime) {
+                                havdalahTime = eventTime;
+                            }
+                        }
+                    }
+
+                    // Check for Yom Tov
+                    if (YOM_TOV_HOLIDAYS.some(h => desc.includes(h))) {
+                        isYomTov = true;
+                    }
+                });
+
+                // Store havdalah time for later reference
+                if (havdalahTime) {
+                    shabbatMode.nextHavdalah = havdalahTime;
+                }
+
+                // Check if we're in a rest period
+                if (candleLightingTime && havdalahTime) {
+                    return now >= candleLightingTime && now < havdalahTime;
+                }
+
+                return false;
+            } catch (e) {
+                console.error('Rest period check error:', e);
+                return false;
+            }
+        }
+
+        // Get time until next Shabbat/Yom Tov for pre-caching
+        function getTimeUntilNextRestPeriod() {
+            if (typeof hebcal === 'undefined') return null;
+
+            try {
+                const now = new Date();
+                const location = hebcal.Location.lookup('Toronto');
+
+                // Look ahead 7 days for next candle lighting
+                const endCheck = new Date(now);
+                endCheck.setDate(endCheck.getDate() + 7);
+
+                const events = hebcal.HebrewCalendar.calendar({
+                    start: now,
+                    end: endCheck,
+                    location: location,
+                    candlelighting: true
+                });
+
+                for (const ev of events) {
+                    const desc = ev.getDesc();
+                    if (desc.startsWith('Candle lighting') && ev.eventTime) {
+                        const msUntil = ev.eventTime - now;
+                        return {
+                            time: ev.eventTime,
+                            msUntil: msUntil,
+                            hoursUntil: msUntil / (1000 * 60 * 60)
+                        };
+                    }
+                }
+                return null;
+            } catch (e) {
+                console.error('Next rest period check error:', e);
+                return null;
+            }
+        }
+
         function updateHebrewCalendar() {
             if (typeof hebcal === 'undefined') {
                 console.warn('Hebcal not loaded');
@@ -1767,10 +1914,16 @@
             }
 
             if (quote) {
-                document.getElementById('quoteHebrew').textContent = quote.hebrew;
-                document.getElementById('quoteEnglish').textContent = quote.english;
-                document.getElementById('quoteSource').textContent = quote.source;
+                displayQuote(quote);
             }
+        }
+
+        // Display a specific quote object
+        function displayQuote(quote) {
+            if (!quote) return;
+            document.getElementById('quoteHebrew').textContent = quote.hebrew;
+            document.getElementById('quoteEnglish').textContent = quote.english;
+            document.getElementById('quoteSource').textContent = quote.source;
         }
 
         function updateLunarPhaseUI(dayOfMonth) {
@@ -1866,6 +2019,14 @@
         }
 
         async function fetchWeather() {
+            // SHABBAT MODE: No network requests
+            if (shabbatMode.active) {
+                if (shabbatMode.cachedWeather) {
+                    applyWeatherData(shabbatMode.cachedWeather);
+                }
+                return;
+            }
+
             const cacheKey = 'lunar_weather_current';
             const cached = getCachedData(cacheKey);
 
@@ -1890,6 +2051,14 @@
         }
 
         async function fetchForecast() {
+            // SHABBAT MODE: No network requests during Shabbat
+            if (shabbatMode.active) {
+                if (shabbatMode.cachedForecast) {
+                    renderForecast(shabbatMode.cachedForecast.list.slice(0, 8));
+                }
+                return;
+            }
+
             const cacheKey = 'lunar_weather_forecast';
             const cached = getCachedData(cacheKey);
 
@@ -1949,19 +2118,27 @@
             window.addEventListener('resize', resize);
 
             document.addEventListener('mousemove', e => {
+                // SHABBAT MODE: No mouse interaction
+                if (shabbatMode.active) return;
                 targetMouseX = e.clientX;
                 targetMouseY = e.clientY;
             });
 
             document.addEventListener('mousedown', () => {
+                // SHABBAT MODE: No mouse interaction
+                if (shabbatMode.active) return;
                 mouseDown = true;
             });
 
             document.addEventListener('mouseup', () => {
+                // SHABBAT MODE: No mouse interaction
+                if (shabbatMode.active) return;
                 mouseDown = false;
             });
 
             document.addEventListener('touchmove', e => {
+                // SHABBAT MODE: No touch interaction
+                if (shabbatMode.active) return;
                 if (e.touches.length) {
                     targetMouseX = e.touches[0].clientX;
                     targetMouseY = e.touches[0].clientY;
@@ -1969,10 +2146,14 @@
             }, { passive: true });
 
             document.addEventListener('touchstart', () => {
+                // SHABBAT MODE: No touch interaction
+                if (shabbatMode.active) return;
                 mouseDown = true;
             }, { passive: true });
 
             document.addEventListener('touchend', () => {
+                // SHABBAT MODE: No touch interaction
+                if (shabbatMode.active) return;
                 mouseDown = false;
             });
         }
@@ -1990,6 +2171,321 @@
                 timeZone: CONFIG.TIMEZONE
             });
             document.getElementById('timeDisplay').textContent = timeStr;
+        }
+
+        // ============================================
+        // SHABBAT MODE FUNCTIONS
+        // ============================================
+
+        const SHABBAT_CACHE_KEY_WEATHER = 'lunar_shabbat_weather';
+        const SHABBAT_CACHE_KEY_FORECAST = 'lunar_shabbat_forecast';
+        const SHABBAT_CACHE_KEY_QUOTE = 'lunar_shabbat_quote';
+        const SHABBAT_CACHE_KEY_SEED = 'lunar_shabbat_seed';
+
+        // Pre-cache weather and forecast for Shabbat (call before candle lighting)
+        async function preCacheForShabbat() {
+            console.log('Pre-caching for Shabbat...');
+            try {
+                // Fetch fresh weather data
+                const weatherRes = await fetch(
+                    `https://api.openweathermap.org/data/2.5/weather?lat=${CONFIG.LAT}&lon=${CONFIG.LON}&appid=${CONFIG.API_KEY}&units=metric`
+                );
+                const weatherData = await weatherRes.json();
+                if (weatherData.main) {
+                    localStorage.setItem(SHABBAT_CACHE_KEY_WEATHER, JSON.stringify({
+                        data: weatherData,
+                        timestamp: Date.now()
+                    }));
+                    shabbatMode.cachedWeather = weatherData;
+                }
+
+                // Fetch fresh forecast data
+                const forecastRes = await fetch(
+                    `https://api.openweathermap.org/data/2.5/forecast?lat=${CONFIG.LAT}&lon=${CONFIG.LON}&appid=${CONFIG.API_KEY}&units=metric`
+                );
+                const forecastData = await forecastRes.json();
+                if (forecastData.list) {
+                    localStorage.setItem(SHABBAT_CACHE_KEY_FORECAST, JSON.stringify({
+                        data: forecastData,
+                        timestamp: Date.now()
+                    }));
+                    shabbatMode.cachedForecast = forecastData;
+                }
+
+                // Pre-select quote
+                preCacheQuoteForShabbat();
+
+                // Generate particle seed
+                const seed = Date.now();
+                localStorage.setItem(SHABBAT_CACHE_KEY_SEED, seed.toString());
+                shabbatMode.particleSeed = seed;
+
+                console.log('Shabbat pre-cache complete');
+            } catch (e) {
+                console.error('Shabbat pre-cache error:', e);
+            }
+        }
+
+        // Pre-select quote for Shabbat
+        function preCacheQuoteForShabbat() {
+            // Use same priority logic as normal quote selection
+            let quote = null;
+
+            // Priority 1: Chanukah (if applicable)
+            const chanukahNight = hebrewState.chanukahNight;
+            if (chanukahNight > 0 && chanukahNight <= 8 && CHANUKAH_QUOTES[chanukahNight]) {
+                quote = CHANUKAH_QUOTES[chanukahNight];
+            }
+            // Priority 2: Shabbat quotes
+            else if (hebrewState.isShabbat || hebrewState.isFriday) {
+                quote = SHABBAT_QUOTES.saturday;
+            }
+            // Priority 3: Moon phase
+            else {
+                const phaseKey = getMoonPhaseKey(hebrewState.dayOfMonth);
+                quote = MOON_QUOTES[phaseKey];
+            }
+
+            if (quote) {
+                localStorage.setItem(SHABBAT_CACHE_KEY_QUOTE, JSON.stringify(quote));
+                shabbatMode.cachedQuote = quote;
+            }
+        }
+
+        // Activate Shabbat mode
+        function activateShabbatMode() {
+            if (shabbatMode.active) return;
+
+            console.log('Activating Shabbat mode');
+            shabbatMode.active = true;
+            shabbatMode.activatedAt = Date.now();
+
+            // Load cached data from localStorage
+            try {
+                const cachedWeather = localStorage.getItem(SHABBAT_CACHE_KEY_WEATHER);
+                if (cachedWeather) {
+                    shabbatMode.cachedWeather = JSON.parse(cachedWeather).data;
+                }
+
+                const cachedForecast = localStorage.getItem(SHABBAT_CACHE_KEY_FORECAST);
+                if (cachedForecast) {
+                    shabbatMode.cachedForecast = JSON.parse(cachedForecast).data;
+                }
+
+                const cachedQuote = localStorage.getItem(SHABBAT_CACHE_KEY_QUOTE);
+                if (cachedQuote) {
+                    shabbatMode.cachedQuote = JSON.parse(cachedQuote);
+                }
+
+                const cachedSeed = localStorage.getItem(SHABBAT_CACHE_KEY_SEED);
+                if (cachedSeed) {
+                    shabbatMode.particleSeed = parseInt(cachedSeed, 10);
+                }
+            } catch (e) {
+                console.error('Failed to load Shabbat cache:', e);
+            }
+
+            // Initialize seeded random for particles
+            shabbatRandom = new SeededRandom(shabbatMode.particleSeed || Date.now());
+
+            // Clear update intervals
+            if (shabbatMode.weatherInterval) {
+                clearInterval(shabbatMode.weatherInterval);
+                shabbatMode.weatherInterval = null;
+            }
+            if (shabbatMode.forecastInterval) {
+                clearInterval(shabbatMode.forecastInterval);
+                shabbatMode.forecastInterval = null;
+            }
+
+            // Reinitialize particles with seeded random
+            initParticlesShabbat();
+
+            // Apply cached weather data
+            if (shabbatMode.cachedWeather) {
+                applyWeatherData(shabbatMode.cachedWeather);
+            }
+            if (shabbatMode.cachedForecast) {
+                renderForecast(shabbatMode.cachedForecast.list.slice(0, 8));
+            }
+
+            // Apply cached quote
+            if (shabbatMode.cachedQuote) {
+                displayQuote(shabbatMode.cachedQuote);
+            }
+
+            console.log('Shabbat mode active');
+        }
+
+        // Deactivate Shabbat mode (after Havdalah)
+        function deactivateShabbatMode() {
+            if (!shabbatMode.active) return;
+
+            console.log('Deactivating Shabbat mode');
+            shabbatMode.active = false;
+            shabbatMode.activatedAt = null;
+            shabbatRandom = null;
+
+            // Clear Shabbat cache
+            localStorage.removeItem(SHABBAT_CACHE_KEY_WEATHER);
+            localStorage.removeItem(SHABBAT_CACHE_KEY_FORECAST);
+            localStorage.removeItem(SHABBAT_CACHE_KEY_QUOTE);
+            localStorage.removeItem(SHABBAT_CACHE_KEY_SEED);
+            shabbatMode.cachedWeather = null;
+            shabbatMode.cachedForecast = null;
+            shabbatMode.cachedQuote = null;
+            shabbatMode.particleSeed = null;
+
+            // Restart normal particles
+            initParticles();
+
+            // Restart update intervals
+            shabbatMode.weatherInterval = setInterval(fetchWeather, CACHE_DURATION_WEATHER);
+            shabbatMode.forecastInterval = setInterval(fetchForecast, CACHE_DURATION_FORECAST);
+
+            // Fetch fresh data
+            fetchWeather();
+            fetchForecast();
+
+            // Update quote normally
+            updateQuoteDisplay();
+
+            console.log('Shabbat mode deactivated, normal operation resumed');
+        }
+
+        // Check if we need to transition in/out of Shabbat mode
+        function checkShabbatModeTransition() {
+            const shouldBeActive = isRestPeriod();
+
+            if (shouldBeActive && !shabbatMode.active) {
+                activateShabbatMode();
+            } else if (!shouldBeActive && shabbatMode.active) {
+                deactivateShabbatMode();
+            }
+
+            // Check if we need to pre-cache (within 6 hours of next rest period)
+            if (!shabbatMode.active) {
+                const nextRest = getTimeUntilNextRestPeriod();
+                if (nextRest && nextRest.hoursUntil <= 6 && nextRest.hoursUntil > 0) {
+                    // Pre-cache if we haven't already
+                    const cachedWeather = localStorage.getItem(SHABBAT_CACHE_KEY_WEATHER);
+                    if (!cachedWeather) {
+                        preCacheForShabbat();
+                    }
+                }
+            }
+        }
+
+        // Initialize particles for Shabbat mode (deterministic)
+        function initParticlesShabbat() {
+            if (!shabbatRandom) {
+                shabbatRandom = new SeededRandom(shabbatMode.particleSeed || Date.now());
+            }
+
+            particles = [];
+            const count = 800;
+            for (let i = 0; i < count; i++) {
+                particles.push(new ParticleShabbat());
+            }
+        }
+
+        // Shabbat-safe particle class (deterministic, no wind/mouse reactivity)
+        class ParticleShabbat {
+            constructor() {
+                this.reset(true);
+            }
+
+            reset(initial = false) {
+                const rand = shabbatRandom || { next: () => Math.random() };
+
+                this.depth = 0.3 + rand.next() * 0.7;
+
+                // Fixed direction (45 degrees) - no wind dependency
+                const baseAngle = Math.PI / 4;
+                const angleVariance = (rand.next() - 0.5) * 0.3;
+                this.baseAngle = baseAngle + angleVariance;
+
+                // Fixed speed - no wind dependency
+                const baseSpeed = 0.15;
+                this.speed = baseSpeed * this.depth * (0.7 + rand.next() * 0.6);
+                this.vx = Math.cos(this.baseAngle) * this.speed;
+                this.vy = Math.sin(this.baseAngle) * this.speed;
+
+                if (initial) {
+                    this.x = rand.next() * W;
+                    this.y = rand.next() * H;
+                } else {
+                    // Spawn from edge opposite to movement direction
+                    if (Math.abs(this.vx) > Math.abs(this.vy)) {
+                        this.x = this.vx > 0 ? -50 - rand.next() * 50 : W + 50 + rand.next() * 50;
+                        this.y = rand.next() * H;
+                    } else {
+                        this.x = rand.next() * W;
+                        this.y = this.vy > 0 ? -50 - rand.next() * 50 : H + 50 + rand.next() * 50;
+                    }
+                }
+
+                this.size = (0.8 + rand.next() * 2.0) * this.depth;
+                this.baseAlpha = (0.12 + rand.next() * 0.2) * this.depth;
+                this.alpha = this.baseAlpha;
+
+                this.turbulence = 0.15 + rand.next() * 0.2;
+                this.oscPhase = rand.next() * Math.PI * 2;
+                this.oscSpeed = 0.001 + rand.next() * 0.002;
+                this.oscAmp = 0.08 + rand.next() * 0.12;
+
+                this.trail = [];
+                this.maxTrail = 8 + Math.floor(rand.next() * 6);
+            }
+
+            update() {
+                this.oscPhase += this.oscSpeed;
+                noiseTime.t += 0.000001;
+
+                const nx = this.x * noiseScale * 0.3;
+                const ny = this.y * noiseScale * 0.3;
+                const n = noise2D(nx, ny, noiseTime.t * 5);
+
+                const osc = Math.sin(this.oscPhase) * this.oscAmp;
+                const turbAngle = n * Math.PI * this.turbulence + osc;
+                const turbVx = Math.cos(this.baseAngle + turbAngle) * this.speed;
+                const turbVy = Math.sin(this.baseAngle + turbAngle) * this.speed;
+
+                // NO mouse interaction during Shabbat
+                this.vx += (turbVx - this.vx) * 0.008;
+                this.vy += (turbVy - this.vy) * 0.008;
+
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > this.maxTrail) this.trail.shift();
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Fade near edges
+                const edgeFade = 80;
+                let edgeAlpha = 1;
+                if (this.x < edgeFade) edgeAlpha = Math.min(edgeAlpha, this.x / edgeFade);
+                if (this.x > W - edgeFade) edgeAlpha = Math.min(edgeAlpha, (W - this.x) / edgeFade);
+                if (this.y < edgeFade) edgeAlpha = Math.min(edgeAlpha, this.y / edgeFade);
+                if (this.y > H - edgeFade) edgeAlpha = Math.min(edgeAlpha, (H - this.y) / edgeFade);
+                this.alpha = this.baseAlpha * Math.max(0, edgeAlpha);
+
+                // Reset when exits screen
+                if (this.x < -100 || this.x > W + 100 || this.y < -100 || this.y > H + 100) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 4);
+                glow.addColorStop(0, `rgba(255, 255, 255, ${this.alpha})`);
+                glow.addColorStop(0.4, `rgba(220, 225, 235, ${this.alpha * 0.4})`);
+                glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = glow;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
 
         // Initialize
@@ -2010,9 +2506,24 @@
             updateHebrewCalendar();
             setInterval(updateHebrewCalendar, 60000); // Update every minute
 
-            setInterval(fetchWeather, CACHE_DURATION_WEATHER);
-            setInterval(fetchForecast, CACHE_DURATION_FORECAST);
+            // Store interval references for Shabbat mode
+            shabbatMode.weatherInterval = setInterval(fetchWeather, CACHE_DURATION_WEATHER);
+            shabbatMode.forecastInterval = setInterval(fetchForecast, CACHE_DURATION_FORECAST);
+
+            // Check Shabbat mode status every minute
+            setInterval(checkShabbatModeTransition, 60000);
+            // Initial check
+            setTimeout(checkShabbatModeTransition, 5000); // Wait for hebcal to load
         }
+
+        // Expose for testing
+        window._lunar = {
+            shabbatMode,
+            activateShabbatMode,
+            deactivateShabbatMode,
+            isRestPeriod,
+            particles: () => particles
+        };
 
         init();
     })();
