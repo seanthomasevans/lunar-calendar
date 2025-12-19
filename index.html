@@ -37,7 +37,7 @@
         /* Hebrew Date - Above moon */
         .hebrew-date {
             position: fixed;
-            top: 20%;
+            top: 8%;
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
@@ -47,53 +47,31 @@
 
         .hebrew-date-hebrew {
             font-family: 'Frank Ruhl Libre', 'Times New Roman', serif;
-            font-size: 42px;
-            font-weight: 300;
-            color: rgba(255,255,255,0.85);
-            letter-spacing: 4px;
+            font-size: 48px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.9);
+            letter-spacing: 5px;
             direction: rtl;
         }
 
         .hebrew-date-phonetic {
-            font-size: 12px;
-            font-weight: 400;
-            color: rgba(255,255,255,0.4);
-            letter-spacing: 2px;
-            margin-top: 8px;
-            text-transform: lowercase;
-        }
-
-        /* Month Theme - Top center */
-        .month-theme {
-            position: fixed;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            z-index: 100;
-            pointer-events: none;
-        }
-
-        .month-letter {
-            font-family: 'Frank Ruhl Libre', serif;
-            font-size: 20px;
-            color: rgba(255,255,255,0.2);
-            font-weight: 300;
-        }
-
-        .month-theme-text {
-            font-size: 9px;
-            font-weight: 400;
-            letter-spacing: 2px;
-            color: rgba(255,255,255,0.35);
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 4px;
+            margin-top: 10px;
             text-transform: uppercase;
-            margin-top: 4px;
+        }
+
+        /* Month Theme - Hidden */
+        .month-theme {
+            display: none;
         }
 
         /* Lunar Phase - Below moon */
         .lunar-phase {
             position: fixed;
-            top: 70%;
+            top: 72%;
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
@@ -102,42 +80,32 @@
         }
 
         .lunar-dots {
-            font-size: 8px;
-            letter-spacing: 1px;
-            color: rgba(255,255,255,0.25);
-        }
-
-        .lunar-dots .active {
-            color: rgba(255,255,255,0.95);
-            text-shadow: 0 0 8px rgba(255,255,255,0.5);
-        }
-
-        .lunar-dots .full {
-            color: rgba(255,255,255,0.5);
+            display: none; /* Hidden - confusing graphic */
         }
 
         .lunar-day {
-            font-size: 12px;
-            font-weight: 300;
+            font-size: 13px;
+            font-weight: 600;
             color: rgba(255,255,255,0.5);
-            margin-top: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
 
         .lunar-meaning {
-            font-size: 10px;
-            font-weight: 400;
-            letter-spacing: 2px;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.4);
-            margin-top: 6px;
+            color: rgba(255,255,255,0.6);
+            margin-top: 10px;
         }
 
         .lunar-sefirah {
-            font-size: 9px;
-            font-weight: 300;
-            letter-spacing: 1px;
-            color: rgba(255,255,255,0.3);
-            margin-top: 4px;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 6px;
             font-style: italic;
         }
 
@@ -145,18 +113,18 @@
         .temp {
             bottom: 40px;
             left: 40px;
-            font-size: 72px;
-            font-weight: 200;
-            letter-spacing: -3px;
+            font-size: 80px;
+            font-weight: 300;
+            letter-spacing: -2px;
             line-height: 1;
         }
 
         .feels {
-            bottom: 48px;
-            left: 175px;
-            font-size: 14px;
-            font-weight: 300;
-            color: rgba(255,255,255,0.5);
+            bottom: 50px;
+            left: 190px;
+            font-size: 16px;
+            font-weight: 400;
+            color: rgba(255,255,255,0.6);
         }
 
         /* Wind - Bottom right */
@@ -167,20 +135,20 @@
         }
 
         .wind-speed {
-            font-size: 28px;
-            font-weight: 200;
-            color: rgba(255,255,255,0.8);
+            font-size: 32px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.85);
         }
 
         .wind-dir {
-            font-size: 12px;
-            font-weight: 400;
-            color: rgba(255,255,255,0.5);
-            letter-spacing: 1px;
-            margin-top: 2px;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 2px;
+            margin-top: 4px;
         }
 
-        /* Zmanim Panel - Bottom right, replaces wind */
+        /* Zmanim Panel - Bottom right, Braun aesthetic */
         .zmanim {
             position: fixed;
             bottom: 40px;
@@ -188,38 +156,45 @@
             text-align: right;
             z-index: 100;
             pointer-events: none;
+            padding: 20px 24px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 2px;
         }
 
         .zmanim-label {
-            font-size: 9px;
-            font-weight: 400;
-            letter-spacing: 1px;
-            color: rgba(255,255,255,0.4);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: rgba(255,255,255,0.5);
             text-transform: uppercase;
         }
 
         .zmanim-time {
-            font-size: 28px;
-            font-weight: 200;
-            color: rgba(255,255,255,0.85);
-            margin-top: 2px;
+            font-size: 42px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.95);
+            margin-top: 8px;
+            letter-spacing: 2px;
+            font-variant-numeric: tabular-nums;
         }
 
         .zmanim-greeting {
-            font-size: 12px;
-            font-weight: 300;
-            color: rgba(255,255,255,0.5);
-            margin-top: 6px;
-            letter-spacing: 1px;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,220,180,0.7);
+            margin-top: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
 
         /* Condition - Top left */
         .condition {
             top: 30px;
             left: 40px;
-            font-size: 10px;
-            font-weight: 400;
-            letter-spacing: 2px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 3px;
             text-transform: uppercase;
             color: rgba(255,255,255,0.5);
         }
@@ -229,9 +204,10 @@
             top: 30px;
             right: 40px;
             text-align: right;
-            font-size: 11px;
-            font-weight: 400;
-            color: rgba(255,255,255,0.4);
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 1px;
         }
 
         .atmosphere span {
@@ -300,10 +276,10 @@
             margin-top: 2px;
         }
 
-        /* Chanukah candles display */
+        /* Chanukah indicator - minimal */
         .chanukah {
             position: fixed;
-            top: 60px;
+            bottom: 75px;
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
@@ -317,56 +293,52 @@
             opacity: 1;
         }
 
-        .chanukah-candles {
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            gap: 4px;
-            height: 40px;
-        }
-
-        .candle {
-            width: 4px;
-            height: 24px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 2px 2px 0 0;
-            position: relative;
-        }
-
-        .candle.shamash {
-            height: 30px;
-            margin: 0 8px;
-        }
-
-        .candle.lit {
-            background: rgba(255,220,150,0.5);
-        }
-
-        .candle.lit::before {
-            content: '';
-            position: absolute;
-            top: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 6px;
-            height: 10px;
-            background: radial-gradient(ellipse at bottom, rgba(255,200,100,0.9) 0%, rgba(255,150,50,0.6) 40%, transparent 70%);
-            border-radius: 50% 50% 20% 20%;
-            animation: flicker 0.5s ease-in-out infinite alternate;
-        }
-
-        @keyframes flicker {
-            0% { opacity: 0.8; transform: translateX(-50%) scale(1); }
-            100% { opacity: 1; transform: translateX(-50%) scale(1.1); }
-        }
-
-        .chanukah-night {
-            font-size: 9px;
-            font-weight: 400;
-            letter-spacing: 2px;
-            color: rgba(255,220,180,0.5);
+        .chanukah-text {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: rgba(255,220,180,0.7);
             text-transform: uppercase;
-            margin-top: 8px;
+        }
+
+        /* Kabbalistic quote - centered on moon */
+        .quote {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 100;
+            pointer-events: none;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .quote-hebrew {
+            font-family: 'Frank Ruhl Libre', serif;
+            font-size: 32px;
+            font-weight: 400;
+            color: rgba(255,255,255,0.85);
+            direction: rtl;
+            line-height: 1.5;
+        }
+
+        .quote-english {
+            font-size: 16px;
+            font-weight: 400;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 2px;
+            margin-top: 16px;
+            font-style: italic;
+        }
+
+        .quote-source {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 4px;
+            margin-top: 20px;
+            text-transform: uppercase;
         }
 
         /* Forecast - Bottom center strip */
@@ -397,15 +369,16 @@
         }
 
         .forecast-time {
-            font-size: 9px;
-            color: rgba(255,255,255,0.3);
-            font-weight: 400;
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            font-weight: 600;
+            letter-spacing: 1px;
         }
 
         .forecast-temp {
-            font-size: 16px;
-            font-weight: 200;
-            color: rgba(255,255,255,0.8);
+            font-size: 18px;
+            font-weight: 400;
+            color: rgba(255,255,255,0.85);
             margin-top: 4px;
         }
 
@@ -481,10 +454,16 @@
         <div class="parsha-name" id="parshaName"></div>
     </div>
 
-    <!-- Chanukah Candles -->
+    <!-- Chanukah indicator -->
     <div class="chanukah" id="chanukah">
-        <div class="chanukah-candles" id="chanukahCandles"></div>
-        <div class="chanukah-night" id="chanukahNight"></div>
+        <div class="chanukah-text" id="chanukahText"></div>
+    </div>
+
+    <!-- Kabbalistic Quote -->
+    <div class="quote" id="quote">
+        <div class="quote-hebrew" id="quoteHebrew"></div>
+        <div class="quote-english" id="quoteEnglish"></div>
+        <div class="quote-source" id="quoteSource"></div>
     </div>
 
     <div class="forecast" id="forecast"></div>
@@ -619,6 +598,36 @@
         // Sefirot for Omer counting
         const SEFIROT = ['Chesed', 'Gevurah', 'Tiferet', 'Netzach', 'Hod', 'Yesod', 'Malchut'];
 
+        // Chanukah quotes by night - Kabbalistic themes
+        const CHANUKAH_QUOTES = {
+            1: { hebrew: 'נֵר ה׳ נִשְׁמַת אָדָם', english: 'The soul of man is the lamp of God', source: 'Proverbs 20:27' },
+            2: { hebrew: 'אוֹר הַגָּנוּז לַצַּדִּיקִים', english: 'The hidden light reserved for the righteous', source: 'Zohar' },
+            3: { hebrew: 'בְּאוֹר פָּנֶיךָ יְהַלֵּכוּן', english: 'In the light of Your countenance they walk', source: 'Psalms 89:16' },
+            4: { hebrew: 'הַנֵּרוֹת הַלָּלוּ קֹדֶשׁ הֵם', english: 'These lights are holy', source: 'Chanukah Liturgy' },
+            5: { hebrew: 'לֹא בְחַיִל וְלֹא בְכֹחַ כִּי אִם בְּרוּחִי', english: 'Not by might nor by power, but by My spirit', source: 'Zechariah 4:6' },
+            6: { hebrew: 'כִּי עִמְּךָ מְקוֹר חַיִּים בְּאוֹרְךָ נִרְאֶה אוֹר', english: 'For with You is the fountain of life; in Your light we see light', source: 'Psalms 36:10' },
+            7: { hebrew: 'וְהָיָה ה׳ לִי לְאוֹר עוֹלָם', english: 'And God shall be my everlasting light', source: 'Isaiah 60:19' },
+            8: { hebrew: 'אוֹר חָדָשׁ עַל צִיּוֹן תָּאִיר', english: 'A new light shall shine upon Zion', source: 'Morning Liturgy' }
+        };
+
+        // Shabbat quotes - Kabbalistic
+        const SHABBAT_QUOTES = {
+            friday: { hebrew: 'נְשָׁמָה יְתֵרָה', english: 'The additional soul descends', source: 'Talmud Beitzah 16a' },
+            saturday: { hebrew: 'מֵעֵין עוֹלָם הַבָּא', english: 'A taste of the world to come', source: 'Talmud Berachot 57b' }
+        };
+
+        // Moon phase quotes (fallback)
+        const MOON_QUOTES = {
+            newMoon: { hebrew: 'בְּרֵאשִׁית בָּרָא אֱלֹהִים', english: 'In the beginning, God created', source: 'Genesis 1:1' },
+            waxingCrescent: { hebrew: 'וַיֹּאמֶר אֱלֹהִים יְהִי אוֹר', english: 'And God said, let there be light', source: 'Genesis 1:3' },
+            firstQuarter: { hebrew: 'עֵץ חַיִּים הִיא לַמַּחֲזִיקִים בָּהּ', english: 'She is a tree of life to those who hold her', source: 'Proverbs 3:18' },
+            waxingGibbous: { hebrew: 'אוֹר זָרֻעַ לַצַּדִּיק', english: 'Light is sown for the righteous', source: 'Psalms 97:11' },
+            fullMoon: { hebrew: 'מָלְאָה הָאָרֶץ דֵּעָה', english: 'The earth shall be full of knowledge', source: 'Isaiah 11:9' },
+            waningGibbous: { hebrew: 'לֵב טָהוֹר בְּרָא לִי אֱלֹהִים', english: 'Create in me a pure heart, O God', source: 'Psalms 51:12' },
+            lastQuarter: { hebrew: 'מִמַּעֲמַקִּים קְרָאתִיךָ', english: 'From the depths I call to You', source: 'Psalms 130:1' },
+            waningCrescent: { hebrew: 'הַמְחַדֵּשׁ בְּטוּבוֹ בְּכָל יוֹם', english: 'Who renews in goodness each day', source: 'Morning Liturgy' }
+        };
+
         function getOmerSefirot(day) {
             if (day < 1 || day > 49) return null;
             const week = Math.floor((day - 1) / 7);
@@ -668,13 +677,12 @@
             initHumidityCircles();
         }
 
-        // Temperature to color mapping
+        // Temperature to color mapping - neutral dark tones
         function getTempColor(t) {
+            // Use dark blue-grey tones instead of temperature-based colors
             const norm = Math.max(0, Math.min(1, (t + 10) / 45));
-            const hue = 240 - norm * 220;
-            const sat = 30 + norm * 30;
-            const light = 10 + norm * 35;
-            return `hsl(${hue}, ${sat}%, ${light}%)`;
+            const light = 8 + norm * 6; // Very subtle variation 8-14%
+            return `hsl(220, 15%, ${light}%)`;
         }
 
         function getTempColorRGB(t) {
@@ -723,7 +731,7 @@
 
             reset(initial = false) {
                 const moveAngle = ((windDeg + 180) % 360) * Math.PI / 180;
-                const speed = Math.max(0.3, windSpeed * 0.15);
+                const speed = Math.max(0.1, windSpeed * 0.04); // Slower particles
 
                 this.depth = 0.3 + Math.random() * 0.7;
                 this.x = initial ? Math.random() * W : (Math.cos(moveAngle) > 0 ? -80 : W + 80);
@@ -731,7 +739,7 @@
 
                 const angleVariance = (Math.random() - 0.5) * 0.2;
                 this.baseAngle = moveAngle + angleVariance;
-                this.speed = speed * this.depth * (0.6 + Math.random() * 0.4);
+                this.speed = speed * this.depth * (0.4 + Math.random() * 0.3); // Slower
                 this.vx = Math.cos(this.baseAngle) * this.speed;
                 this.vy = Math.sin(this.baseAngle) * this.speed;
 
@@ -801,31 +809,14 @@
                 const fadeOut = Math.min(1, (this.maxLife - this.life) / 80);
                 const alpha = this.alpha * fadeIn * fadeOut;
 
-                if (this.trail.length > 2) {
-                    ctx.beginPath();
-                    ctx.moveTo(this.trail[0].x, this.trail[0].y);
-
-                    for (let i = 1; i < this.trail.length - 1; i++) {
-                        const xc = (this.trail[i].x + this.trail[i + 1].x) / 2;
-                        const yc = (this.trail[i].y + this.trail[i + 1].y) / 2;
-                        ctx.quadraticCurveTo(this.trail[i].x, this.trail[i].y, xc, yc);
-                    }
-                    ctx.lineTo(this.x, this.y);
-
-                    ctx.strokeStyle = `hsla(${this.hue}, ${this.sat}%, 90%, ${alpha * 0.5})`;
-                    ctx.lineWidth = this.size * 0.8;
-                    ctx.lineCap = 'round';
-                    ctx.lineJoin = 'round';
-                    ctx.stroke();
-                }
-
-                const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 5);
-                glow.addColorStop(0, `hsla(${this.hue}, ${this.sat}%, 95%, ${alpha})`);
-                glow.addColorStop(0.3, `hsla(${this.hue}, ${this.sat}%, 90%, ${alpha * 0.5})`);
+                // Simple soft particle - no trails
+                const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 4);
+                glow.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
+                glow.addColorStop(0.4, `rgba(220, 225, 235, ${alpha * 0.4})`);
                 glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
                 ctx.fillStyle = glow;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size * 5, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.size * 4, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
@@ -869,29 +860,21 @@
 
         // Draw temperature gradient background
         function drawBackground() {
-            const color1 = getTempColorRGB(temp);
-            const color2 = getTempColorRGB(temp - 5);
-
-            const grad = ctx.createLinearGradient(0, 0, W, H);
-            grad.addColorStop(0, `rgb(${color2.r}, ${color2.g}, ${color2.b})`);
-            grad.addColorStop(1, `rgb(${color1.r}, ${color1.g}, ${color1.b})`);
+            // Deep night sky gradient - neutral dark blue
+            const grad = ctx.createLinearGradient(0, 0, 0, H);
+            grad.addColorStop(0, '#0a0c14');    // Very dark blue-black at top
+            grad.addColorStop(0.5, '#0d1018');  // Slightly lighter in middle
+            grad.addColorStop(1, '#080a10');    // Dark at bottom
 
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, W, H);
 
-            // Feels-like differential overlay
-            if (Math.abs(feelsLike - temp) > 2) {
-                const diff = feelsLike - temp;
-                const overlayColor = diff < 0
-                    ? `rgba(100, 150, 255, ${Math.min(0.15, Math.abs(diff) * 0.02)})`
-                    : `rgba(255, 150, 100, ${Math.min(0.15, Math.abs(diff) * 0.02)})`;
-
-                const overlayGrad = ctx.createLinearGradient(0, 0, 0, H * 0.3);
-                overlayGrad.addColorStop(0, overlayColor);
-                overlayGrad.addColorStop(1, 'transparent');
-                ctx.fillStyle = overlayGrad;
-                ctx.fillRect(0, 0, W, H * 0.3);
-            }
+            // Subtle vignette
+            const vignette = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * 0.7);
+            vignette.addColorStop(0, 'rgba(0,0,0,0)');
+            vignette.addColorStop(1, 'rgba(0,0,0,0.3)');
+            ctx.fillStyle = vignette;
+            ctx.fillRect(0, 0, W, H);
 
             // Shabbat warmth overlay
             if (hebrewState.isShabbat) {
@@ -1087,7 +1070,8 @@
         }
 
         function getMoonPhaseAngle(jd) {
-            const knownNewMoon = 2460638.783;
+            // Reference: January 6, 2000 new moon (well-documented astronomical event)
+            const knownNewMoon = 2451550.1;
             const synodicMonth = 29.530588853;
             const daysSinceNew = jd - knownNewMoon;
             let phase = ((daysSinceNew % synodicMonth) + synodicMonth) % synodicMonth;
@@ -1480,12 +1464,12 @@
             ctx.clearRect(0, 0, W, H);
 
             drawBackground();
-            drawMoon();
             drawHumidityField();
-            drawPrecipitationBurst();
-            drawParticles();
-            drawPressureBar();
-            drawConditionIcon();
+            drawParticles();        // Draw particles behind moon
+            drawMoon();             // Moon on top
+            // drawPrecipitationBurst(); // Removed - clean aesthetic
+            // drawPressureBar();        // Removed - white line artifact
+            // drawConditionIcon();      // Removed - clean aesthetic
             drawMouseGlow();
 
             requestAnimationFrame(render);
@@ -1639,29 +1623,50 @@
             } else {
                 chanukahEl.classList.remove('visible');
             }
+
+            // Kabbalistic quote - context aware
+            updateQuoteDisplay();
         }
 
         function updateChanukahCandles(night) {
-            const container = document.getElementById('chanukahCandles');
-            let html = '';
+            // Simple text display for Chanukah
+            document.getElementById('chanukahText').textContent = `Chanukah · Night ${night}`;
+        }
 
-            // Left candles (4)
-            for (let i = 4; i >= 1; i--) {
-                const lit = i <= night ? 'lit' : '';
-                html += `<div class="candle ${lit}"></div>`;
+        function getMoonPhaseKey(dayOfMonth) {
+            for (const [key, phase] of Object.entries(MOON_PHASES)) {
+                if (phase.days.includes(dayOfMonth)) {
+                    return key;
+                }
+            }
+            return 'newMoon';
+        }
+
+        function updateQuoteDisplay() {
+            let quote = null;
+
+            // Priority 1: Chanukah quotes (by night)
+            if (hebrewState.chanukahNight > 0 && hebrewState.chanukahNight <= 8) {
+                quote = CHANUKAH_QUOTES[hebrewState.chanukahNight];
+            }
+            // Priority 2: Shabbat quotes
+            else if (hebrewState.isShabbat) {
+                quote = SHABBAT_QUOTES.saturday;
+            }
+            else if (hebrewState.isFriday) {
+                quote = SHABBAT_QUOTES.friday;
+            }
+            // Priority 3: Moon phase quotes (fallback)
+            else {
+                const phaseKey = getMoonPhaseKey(hebrewState.dayOfMonth);
+                quote = MOON_QUOTES[phaseKey];
             }
 
-            // Shamash (always lit during Chanukah)
-            html += `<div class="candle shamash lit"></div>`;
-
-            // Right candles (4)
-            for (let i = 5; i <= 8; i++) {
-                const lit = i <= night ? 'lit' : '';
-                html += `<div class="candle ${lit}"></div>`;
+            if (quote) {
+                document.getElementById('quoteHebrew').textContent = quote.hebrew;
+                document.getElementById('quoteEnglish').textContent = quote.english;
+                document.getElementById('quoteSource').textContent = quote.source;
             }
-
-            container.innerHTML = html;
-            document.getElementById('chanukahNight').textContent = `Night ${night}`;
         }
 
         function updateLunarPhaseUI(dayOfMonth) {
