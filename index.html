@@ -8,13 +8,53 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
+        /* ========================================
+           DESIGN SYSTEM - Dieter Rams Aesthetic
+           ======================================== */
+
+        :root {
+            /* Type Scale (1.25 ratio) */
+            --text-xs: 10px;
+            --text-sm: 12px;
+            --text-base: 14px;
+            --text-lg: 18px;
+            --text-xl: 24px;
+            --text-2xl: 32px;
+            --text-3xl: 48px;
+            --text-4xl: 72px;
+
+            /* Letter Spacing */
+            --tracking-tight: -0.02em;
+            --tracking-normal: 0;
+            --tracking-wide: 0.1em;
+            --tracking-wider: 0.2em;
+
+            /* Colors */
+            --white-100: rgba(255,255,255,0.95);
+            --white-80: rgba(255,255,255,0.8);
+            --white-60: rgba(255,255,255,0.6);
+            --white-40: rgba(255,255,255,0.4);
+            --white-20: rgba(255,255,255,0.2);
+            --accent-warm: rgba(255,220,180,0.7);
+
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 40px;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         html, body {
             width: 100%;
             height: 100%;
             overflow: hidden;
             background: #0a0a12;
-            font-family: 'Helvetica Neue', 'Arial', sans-serif;
+            font-family: 'Helvetica Neue', -apple-system, sans-serif;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
         }
 
         canvas {
@@ -25,19 +65,20 @@
             height: 100%;
         }
 
-        /* Typography - Sparse, Functional */
+        /* Base Label */
         .label {
             position: fixed;
             z-index: 100;
-            color: rgba(255,255,255,0.9);
-            font-weight: 200;
+            color: var(--white-80);
             pointer-events: none;
         }
 
-        /* Hebrew Date - Above moon */
-        .hebrew-date {
+        /* ========================================
+           CURRENT TIME - Top center
+           ======================================== */
+        .current-time {
             position: fixed;
-            top: 8%;
+            top: var(--space-lg);
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
@@ -45,21 +86,45 @@
             pointer-events: none;
         }
 
+        .time-display {
+            font-size: var(--text-3xl);
+            font-weight: 300;
+            color: var(--white-60);
+            letter-spacing: var(--tracking-wide);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .time-location {
+            display: none;
+        }
+
+        /* ========================================
+           HEBREW DATE - Top left corner
+           ======================================== */
+        .hebrew-date {
+            position: fixed;
+            top: 60px;
+            left: var(--space-xl);
+            text-align: left;
+            z-index: 100;
+            pointer-events: none;
+        }
+
         .hebrew-date-hebrew {
             font-family: 'Frank Ruhl Libre', 'Times New Roman', serif;
-            font-size: 48px;
-            font-weight: 500;
-            color: rgba(255,255,255,0.9);
-            letter-spacing: 5px;
+            font-size: var(--text-base);
+            font-weight: 400;
+            color: var(--white-40);
+            letter-spacing: 0.02em;
             direction: rtl;
         }
 
         .hebrew-date-phonetic {
-            font-size: 13px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.5);
-            letter-spacing: 4px;
-            margin-top: 10px;
+            font-size: var(--text-xs);
+            font-weight: 400;
+            color: var(--white-20);
+            letter-spacing: var(--tracking-wide);
+            margin-top: 2px;
             text-transform: uppercase;
         }
 
@@ -68,7 +133,9 @@
             display: none;
         }
 
-        /* Lunar Phase - Below moon */
+        /* ========================================
+           LUNAR PHASE - Below moon
+           ======================================== */
         .lunar-phase {
             position: fixed;
             top: 72%;
@@ -77,144 +144,155 @@
             text-align: center;
             z-index: 100;
             pointer-events: none;
+            line-height: 1.6;
         }
 
         .lunar-dots {
-            display: none; /* Hidden - confusing graphic */
+            display: none;
         }
 
         .lunar-day {
-            font-size: 13px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.5);
-            letter-spacing: 3px;
+            font-size: var(--text-sm);
+            font-weight: 500;
+            color: var(--white-40);
+            letter-spacing: var(--tracking-wide);
             text-transform: uppercase;
         }
 
         .lunar-meaning {
-            font-size: 14px;
+            font-size: var(--text-lg);
             font-weight: 500;
-            letter-spacing: 3px;
+            letter-spacing: var(--tracking-wide);
             text-transform: uppercase;
-            color: rgba(255,255,255,0.6);
-            margin-top: 10px;
+            color: var(--white-80);
+            margin-top: var(--space-sm);
         }
 
         .lunar-sefirah {
-            font-size: 11px;
+            font-size: var(--text-sm);
             font-weight: 400;
-            letter-spacing: 2px;
-            color: rgba(255,255,255,0.4);
-            margin-top: 6px;
+            letter-spacing: var(--tracking-normal);
+            color: var(--white-40);
+            margin-top: var(--space-sm);
             font-style: italic;
         }
 
-        /* Temperature - Primary data, bottom left */
+        /* ========================================
+           TEMPERATURE - Bottom left
+           ======================================== */
         .temp {
-            bottom: 40px;
-            left: 40px;
-            font-size: 80px;
-            font-weight: 300;
-            letter-spacing: -2px;
+            bottom: var(--space-xl);
+            left: var(--space-xl);
+            font-size: 64px;
+            font-weight: 400;
+            letter-spacing: var(--tracking-tight);
             line-height: 1;
+            color: var(--white-100);
         }
 
         .feels {
-            bottom: 50px;
-            left: 190px;
-            font-size: 16px;
+            bottom: 52px;
+            left: 140px;
+            font-size: var(--text-base);
             font-weight: 400;
-            color: rgba(255,255,255,0.6);
+            color: var(--white-60);
         }
 
-        /* Wind - Bottom right */
+        /* ========================================
+           WIND - Bottom right
+           ======================================== */
         .wind {
-            bottom: 40px;
-            right: 40px;
+            bottom: var(--space-xl);
+            right: var(--space-xl);
             text-align: right;
         }
 
         .wind-speed {
-            font-size: 32px;
+            font-size: var(--text-xl);
             font-weight: 300;
-            color: rgba(255,255,255,0.85);
+            color: var(--white-80);
         }
 
         .wind-dir {
-            font-size: 14px;
+            font-size: var(--text-xs);
             font-weight: 500;
-            color: rgba(255,255,255,0.6);
-            letter-spacing: 2px;
-            margin-top: 4px;
+            color: var(--white-40);
+            letter-spacing: var(--tracking-wider);
+            margin-top: var(--space-xs);
         }
 
-        /* Zmanim Panel - Bottom right, Braun aesthetic */
+        /* ========================================
+           ZMANIM PANEL - Bottom right
+           ======================================== */
         .zmanim {
             position: fixed;
-            bottom: 40px;
-            right: 40px;
+            bottom: var(--space-xl);
+            right: var(--space-xl);
             text-align: right;
             z-index: 100;
             pointer-events: none;
-            padding: 20px 24px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
+            padding: var(--space-md) var(--space-lg);
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
             border-radius: 2px;
         }
 
         .zmanim-label {
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 3px;
-            color: rgba(255,255,255,0.5);
+            font-size: var(--text-xs);
+            font-weight: 500;
+            letter-spacing: var(--tracking-wider);
+            color: var(--white-40);
             text-transform: uppercase;
         }
 
         .zmanim-time {
-            font-size: 42px;
+            font-size: var(--text-2xl);
             font-weight: 300;
-            color: rgba(255,255,255,0.95);
-            margin-top: 8px;
-            letter-spacing: 2px;
+            color: var(--white-100);
+            margin-top: var(--space-sm);
+            letter-spacing: var(--tracking-wide);
             font-variant-numeric: tabular-nums;
         }
 
         .zmanim-greeting {
-            font-size: 11px;
-            font-weight: 600;
-            color: rgba(255,220,180,0.7);
-            margin-top: 12px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
-
-        /* Condition - Top left */
-        .condition {
-            top: 30px;
-            left: 40px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.5);
-        }
-
-        /* Atmosphere - Top right */
-        .atmosphere {
-            top: 30px;
-            right: 40px;
-            text-align: right;
-            font-size: 12px;
+            font-size: var(--text-xs);
             font-weight: 500;
-            color: rgba(255,255,255,0.5);
-            letter-spacing: 1px;
+            color: var(--accent-warm);
+            margin-top: var(--space-sm);
+            letter-spacing: var(--tracking-wider);
+            text-transform: uppercase;
+        }
+
+        /* ========================================
+           WEATHER INFO - Top corners
+           ======================================== */
+        .condition {
+            top: var(--space-xl);
+            left: var(--space-xl);
+            font-size: var(--text-xs);
+            font-weight: 500;
+            letter-spacing: var(--tracking-wider);
+            text-transform: uppercase;
+            color: var(--white-40);
+        }
+
+        .atmosphere {
+            top: var(--space-xl);
+            right: var(--space-xl);
+            text-align: right;
+            font-size: var(--text-sm);
+            font-weight: 400;
+            color: var(--white-40);
+            letter-spacing: var(--tracking-normal);
         }
 
         .atmosphere span {
-            margin-left: 15px;
+            margin-left: var(--space-md);
         }
 
-        /* Omer Counter */
+        /* ========================================
+           OMER COUNTER
+           ======================================== */
         .omer-count {
             position: fixed;
             bottom: 120px;
@@ -232,25 +310,27 @@
         }
 
         .omer-number {
-            font-size: 12px;
-            font-weight: 300;
-            color: rgba(255,255,255,0.5);
-            letter-spacing: 1px;
+            font-size: var(--text-sm);
+            font-weight: 400;
+            color: var(--white-40);
+            letter-spacing: var(--tracking-wide);
         }
 
         .omer-sefirot {
-            font-size: 10px;
+            font-size: var(--text-xs);
             font-weight: 400;
-            letter-spacing: 1px;
-            color: rgba(255,255,255,0.4);
-            margin-top: 4px;
+            letter-spacing: var(--tracking-wide);
+            color: var(--white-40);
+            margin-top: var(--space-xs);
         }
 
-        /* Parsha - Bottom left above temp */
+        /* ========================================
+           PARSHA - Bottom left above temp
+           ======================================== */
         .parsha {
             position: fixed;
-            bottom: 130px;
-            left: 40px;
+            bottom: 120px;
+            left: var(--space-xl);
             z-index: 100;
             pointer-events: none;
             opacity: 0;
@@ -262,24 +342,26 @@
         }
 
         .parsha-label {
-            font-size: 9px;
-            font-weight: 400;
-            letter-spacing: 1px;
-            color: rgba(255,255,255,0.3);
+            font-size: var(--text-xs);
+            font-weight: 500;
+            letter-spacing: var(--tracking-wider);
+            color: var(--white-20);
             text-transform: uppercase;
         }
 
         .parsha-name {
-            font-size: 14px;
-            font-weight: 300;
-            color: rgba(255,255,255,0.6);
-            margin-top: 2px;
+            font-size: var(--text-base);
+            font-weight: 400;
+            color: var(--white-60);
+            margin-top: var(--space-xs);
         }
 
-        /* Chanukah indicator - minimal */
+        /* ========================================
+           CHANUKAH INDICATOR
+           ======================================== */
         .chanukah {
             position: fixed;
-            bottom: 75px;
+            bottom: 60px;
             left: 50%;
             transform: translateX(-50%);
             text-align: center;
@@ -294,60 +376,64 @@
         }
 
         .chanukah-text {
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 3px;
-            color: rgba(255,220,180,0.7);
+            font-size: var(--text-base);
+            font-weight: 500;
+            letter-spacing: var(--tracking-wide);
+            color: var(--accent-warm);
             text-transform: uppercase;
         }
 
-        /* Kabbalistic quote - centered on moon */
+        /* ========================================
+           KABBALISTIC QUOTE - Centered on moon
+           ======================================== */
         .quote {
             position: fixed;
-            top: 50%;
+            top: 42%;
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
             z-index: 100;
             pointer-events: none;
-            max-width: 600px;
+            max-width: 640px;
             width: 90%;
         }
 
         .quote-hebrew {
             font-family: 'Frank Ruhl Libre', serif;
-            font-size: 32px;
+            font-size: var(--text-2xl);
             font-weight: 400;
-            color: rgba(255,255,255,0.85);
+            color: var(--white-100);
             direction: rtl;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
         .quote-english {
-            font-size: 16px;
+            font-size: var(--text-lg);
             font-weight: 400;
-            color: rgba(255,255,255,0.6);
-            letter-spacing: 2px;
-            margin-top: 16px;
+            color: var(--white-80);
+            letter-spacing: var(--tracking-normal);
+            margin-top: var(--space-sm);
             font-style: italic;
         }
 
         .quote-source {
-            font-size: 11px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.4);
-            letter-spacing: 4px;
-            margin-top: 20px;
+            font-size: var(--text-sm);
+            font-weight: 500;
+            color: var(--white-40);
+            letter-spacing: var(--tracking-wide);
+            margin-top: var(--space-sm);
             text-transform: uppercase;
         }
 
-        /* Forecast - Bottom center strip */
+        /* ========================================
+           FORECAST - Bottom center strip
+           ======================================== */
         .forecast {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            height: 60px;
+            height: 56px;
             display: flex;
             justify-content: center;
             z-index: 50;
@@ -355,13 +441,13 @@
         }
 
         .forecast-segment {
-            width: 80px;
+            width: 72px;
             height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-right: 1px solid rgba(255,255,255,0.05);
+            border-right: 1px solid rgba(255,255,255,0.04);
         }
 
         .forecast-segment:last-child {
@@ -369,27 +455,30 @@
         }
 
         .forecast-time {
-            font-size: 10px;
-            color: rgba(255,255,255,0.4);
-            font-weight: 600;
-            letter-spacing: 1px;
+            font-size: var(--text-xs);
+            color: var(--white-40);
+            font-weight: 500;
+            letter-spacing: var(--tracking-wide);
         }
 
         .forecast-temp {
-            font-size: 18px;
+            font-size: var(--text-lg);
             font-weight: 400;
-            color: rgba(255,255,255,0.85);
-            margin-top: 4px;
+            color: var(--white-80);
+            margin-top: var(--space-xs);
         }
 
+        /* ========================================
+           LOADING STATE
+           ======================================== */
         .loading {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 10px;
-            letter-spacing: 3px;
-            color: rgba(255,255,255,0.3);
+            font-size: var(--text-xs);
+            letter-spacing: var(--tracking-wider);
+            color: var(--white-20);
             text-transform: uppercase;
             z-index: 200;
             transition: opacity 0.5s;
@@ -400,6 +489,12 @@
 </head>
 <body>
     <canvas id="canvas"></canvas>
+
+    <!-- Current Time Display -->
+    <div class="current-time" id="currentTime">
+        <div class="time-display" id="timeDisplay">--:--</div>
+        <div class="time-location">Toronto, ON</div>
+    </div>
 
     <div class="label temp" id="temp">--°</div>
     <div class="label feels" id="feels">feels --°</div>
@@ -481,7 +576,8 @@
             LAT: 43.6532,
             LON: -79.3832,
             TIMEZONE: 'America/Toronto',
-            LOCATION_NAME: 'Toronto',
+            LOCATION_NAME: 'Toronto, ON',
+            COUNTRY: 'CA',
             API_KEY: 'a73511139cb03d0c96c105790e302b64'
         };
 
@@ -723,59 +819,74 @@
                    Math.cos(x * 2.1 + y * 1.7 - t * 0.3) * 0.25;
         }
 
-        // Turbulent wind particle class
+        // Wind-driven particles - follow actual wind direction and speed from API
         class Particle {
             constructor() {
                 this.reset(true);
             }
 
             reset(initial = false) {
-                const moveAngle = ((windDeg + 180) % 360) * Math.PI / 180;
-                const speed = Math.max(0.1, windSpeed * 0.04); // Slower particles
-
                 this.depth = 0.3 + Math.random() * 0.7;
-                this.x = initial ? Math.random() * W : (Math.cos(moveAngle) > 0 ? -80 : W + 80);
-                this.y = Math.random() * H;
 
-                const angleVariance = (Math.random() - 0.5) * 0.2;
-                this.baseAngle = moveAngle + angleVariance;
-                this.speed = speed * this.depth * (0.4 + Math.random() * 0.3); // Slower
+                // Wind blows FROM windDeg, so particles move in opposite direction
+                // Convert meteorological degrees (0=N, 90=E, 180=S, 270=W) to math angle
+                // windDeg is where wind comes FROM, add 180 to get where it's going
+                const windRadians = ((windDeg + 180) % 360) * Math.PI / 180;
+                const angleVariance = (Math.random() - 0.5) * 0.3;
+                this.baseAngle = windRadians + angleVariance;
+
+                // Calculate velocity FIRST to determine spawn position
+                const baseSpeed = Math.max(0.05, windSpeed * 0.008);
+                this.speed = baseSpeed * this.depth * (0.7 + Math.random() * 0.6);
                 this.vx = Math.cos(this.baseAngle) * this.speed;
                 this.vy = Math.sin(this.baseAngle) * this.speed;
 
-                this.size = (0.8 + Math.random() * 2.0) * this.depth;
-                this.alpha = (0.15 + Math.random() * 0.25) * this.depth;
+                if (initial) {
+                    this.x = Math.random() * W;
+                    this.y = Math.random() * H;
+                } else {
+                    // Spawn from edge OPPOSITE to movement direction
+                    // So particles drift onto screen, not off it
+                    if (Math.abs(this.vx) > Math.abs(this.vy)) {
+                        // Mostly horizontal movement - spawn on left or right edge
+                        this.x = this.vx > 0 ? -50 - Math.random() * 50 : W + 50 + Math.random() * 50;
+                        this.y = Math.random() * H;
+                    } else {
+                        // Mostly vertical movement - spawn on top or bottom edge
+                        this.x = Math.random() * W;
+                        this.y = this.vy > 0 ? -50 - Math.random() * 50 : H + 50 + Math.random() * 50;
+                    }
+                }
 
-                this.turbulence = 0.1 + Math.random() * 0.2;
+                this.size = (0.8 + Math.random() * 2.0) * this.depth;
+                this.baseAlpha = (0.12 + Math.random() * 0.2) * this.depth;
+                this.alpha = this.baseAlpha;
+
+                // Gentle turbulence for organic movement
+                this.turbulence = 0.15 + Math.random() * 0.2;
 
                 this.oscPhase = Math.random() * Math.PI * 2;
-                this.oscSpeed = 0.005 + Math.random() * 0.01;
-                this.oscAmp = 0.05 + Math.random() * 0.1;
-
-                this.life = 0;
-                this.maxLife = 800 + Math.random() * 1200;
+                this.oscSpeed = 0.001 + Math.random() * 0.002;
+                this.oscAmp = 0.08 + Math.random() * 0.12;
 
                 this.trail = [];
-                this.maxTrail = 12 + Math.floor(Math.random() * 10);
-
-                this.hue = this.depth > 0.6 ? 30 : 210;
-                this.sat = 10 + Math.random() * 20;
+                this.maxTrail = 8 + Math.floor(Math.random() * 6);
             }
 
             update() {
-                this.life++;
                 this.oscPhase += this.oscSpeed;
-                noiseTime.t += 0.000002;
+                noiseTime.t += 0.000001;
 
-                const nx = this.x * noiseScale * 0.5;
-                const ny = this.y * noiseScale * 0.5;
-                const n = noise2D(nx, ny, noiseTime.t * 10);
+                const nx = this.x * noiseScale * 0.3;
+                const ny = this.y * noiseScale * 0.3;
+                const n = noise2D(nx, ny, noiseTime.t * 5);
 
                 const osc = Math.sin(this.oscPhase) * this.oscAmp;
                 const turbAngle = n * Math.PI * this.turbulence + osc;
                 const turbVx = Math.cos(this.baseAngle + turbAngle) * this.speed;
                 const turbVy = Math.sin(this.baseAngle + turbAngle) * this.speed;
 
+                // Mouse interaction
                 const dx = this.x - mouseX;
                 const dy = this.y - mouseY;
                 const dist = Math.sqrt(dx * dx + dy * dy);
@@ -783,15 +894,15 @@
 
                 let mouseVx = 0, mouseVy = 0;
                 if (dist < radius && dist > 5) {
-                    const force = (1 - dist / radius) * (mouseDown ? 3 : 1.5) * this.depth;
-                    const repel = force * 0.3;
-                    const swirl = force * 0.2;
+                    const force = (1 - dist / radius) * (mouseDown ? 2 : 1) * this.depth;
+                    const repel = force * 0.2;
+                    const swirl = force * 0.15;
                     mouseVx = (dx / dist) * repel + (-dy / dist) * swirl;
                     mouseVy = (dy / dist) * repel + (dx / dist) * swirl;
                 }
 
-                this.vx += (turbVx - this.vx) * 0.02 + mouseVx * 0.05;
-                this.vy += (turbVy - this.vy) * 0.02 + mouseVy * 0.05;
+                this.vx += (turbVx - this.vx) * 0.008 + mouseVx * 0.03;
+                this.vy += (turbVy - this.vy) * 0.008 + mouseVy * 0.03;
 
                 this.trail.push({ x: this.x, y: this.y });
                 if (this.trail.length > this.maxTrail) this.trail.shift();
@@ -799,20 +910,26 @@
                 this.x += this.vx;
                 this.y += this.vy;
 
-                if (this.x < -100 || this.x > W + 100 || this.y < -100 || this.y > H + 100 || this.life > this.maxLife) {
+                // Fade near edges (all sides)
+                const edgeFade = 80;
+                let edgeAlpha = 1;
+                if (this.x < edgeFade) edgeAlpha = Math.min(edgeAlpha, this.x / edgeFade);
+                if (this.x > W - edgeFade) edgeAlpha = Math.min(edgeAlpha, (W - this.x) / edgeFade);
+                if (this.y < edgeFade) edgeAlpha = Math.min(edgeAlpha, this.y / edgeFade);
+                if (this.y > H - edgeFade) edgeAlpha = Math.min(edgeAlpha, (H - this.y) / edgeFade);
+                this.alpha = this.baseAlpha * Math.max(0, edgeAlpha);
+
+                // Reset when particle exits screen
+                if (this.x < -100 || this.x > W + 100 || this.y < -100 || this.y > H + 100) {
                     this.reset();
                 }
             }
 
             draw() {
-                const fadeIn = Math.min(1, this.life / 30);
-                const fadeOut = Math.min(1, (this.maxLife - this.life) / 80);
-                const alpha = this.alpha * fadeIn * fadeOut;
-
-                // Simple soft particle - no trails
+                // Alpha is already calculated with fade zones in update()
                 const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 4);
-                glow.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
-                glow.addColorStop(0.4, `rgba(220, 225, 235, ${alpha * 0.4})`);
+                glow.addColorStop(0, `rgba(255, 255, 255, ${this.alpha})`);
+                glow.addColorStop(0.4, `rgba(220, 225, 235, ${this.alpha * 0.4})`);
                 glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
                 ctx.fillStyle = glow;
                 ctx.beginPath();
@@ -823,27 +940,14 @@
 
         function initParticles() {
             particles = [];
-            const count = Math.floor(400 + (windSpeed / 30) * (MAX_PARTICLES - 400));
+            const count = 800; // Fixed count for even distribution
             for (let i = 0; i < count; i++) {
                 particles.push(new Particle());
             }
         }
 
         function updateParticleCount() {
-            const targetCount = Math.floor(400 + (windSpeed / 30) * (MAX_PARTICLES - 400));
-            while (particles.length < targetCount) {
-                particles.push(new Particle());
-            }
-            while (particles.length > targetCount) {
-                particles.pop();
-            }
-            const moveAngle = ((windDeg + 180) % 360) * Math.PI / 180;
-            const speed = Math.max(0.5, windSpeed * 0.25);
-            particles.forEach(p => {
-                const angleVariance = (Math.random() - 0.5) * 0.3;
-                p.baseVx = Math.cos(moveAngle + angleVariance) * speed * p.depth;
-                p.baseVy = Math.sin(moveAngle + angleVariance) * speed * p.depth;
-            });
+            // Particles are now ambient - no wind-based updates needed
         }
 
         function initHumidityCircles() {
@@ -1873,6 +1977,21 @@
             });
         }
 
+        // ============================================
+        // TIME DISPLAY FUNCTIONS
+        // ============================================
+
+        function updateTimeDisplay() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: CONFIG.TIMEZONE
+            });
+            document.getElementById('timeDisplay').textContent = timeStr;
+        }
+
         // Initialize
         function init() {
             resize();
@@ -1882,6 +2001,10 @@
             render();
             fetchWeather();
             fetchForecast();
+
+            // Time display - update every second
+            updateTimeDisplay();
+            setInterval(updateTimeDisplay, 1000);
 
             // Hebrew calendar
             updateHebrewCalendar();

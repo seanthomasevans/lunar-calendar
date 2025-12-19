@@ -53,3 +53,27 @@ Toronto (43.6532°N, 79.3832°W)
 
 ### Moon Phase Calculation
 Uses January 6, 2000 new moon (JD 2451550.1) as reference with synodic month of 29.530588853 days.
+
+### Particle System
+- Wind-driven particles follow actual wind direction/speed from OpenWeatherMap API
+- Spawns from upwind edge, drifts across screen following wind
+- Fades near screen edges (80px fade zone)
+- Mouse interaction: particles repel and swirl around cursor
+- Gentle turbulence and oscillation for organic movement
+
+## Upcoming: Shabbat Mode
+
+Halachically-compliant rest mode that auto-activates from Friday sunset to Saturday nightfall (and Yom Tov).
+
+**Constraints:**
+- No network requests during Shabbat
+- No user interaction (mouse/touch disabled)
+- Deterministic particle system (seeded random, no wind reactivity)
+- Pre-cached weather, quotes, and forecast
+- Clock is the only progressing element
+
+**Implementation:** Pre-cache all content before Shabbat, freeze state, disable sensors.
+
+## Testing with Playwright
+
+Playwright MCP runs in Docker. Use `host.docker.internal:8080` instead of `localhost:8080` when navigating.
