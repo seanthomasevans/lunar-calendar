@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Calendar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #0a0a12;
+            font-family: 'Helvetica Neue', 'Arial', sans-serif;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Typography - Sparse, Functional */
+        .label {
+            position: fixed;
+            z-index: 100;
+            color: rgba(255,255,255,0.9);
+            font-weight: 200;
+            pointer-events: none;
+        }
+
+        /* Hebrew Date - Above moon */
+        .hebrew-date {
+            position: fixed;
+            top: 22%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .hebrew-date-hebrew {
+            font-family: 'Frank Ruhl Libre', 'Times New Roman', serif;
+            font-size: 28px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.75);
+            letter-spacing: 3px;
+            direction: rtl;
+        }
+
+        .hebrew-date-gregorian {
+            font-size: 11px;
+            font-weight: 400;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 1px;
+            margin-top: 6px;
+        }
+
+        /* Month Theme - Top center */
+        .month-theme {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .month-letter {
+            font-family: 'Frank Ruhl Libre', serif;
+            font-size: 20px;
+            color: rgba(255,255,255,0.2);
+            font-weight: 300;
+        }
+
+        .month-theme-text {
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.35);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        /* Lunar Phase - Below moon */
+        .lunar-phase {
+            position: fixed;
+            top: 70%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .lunar-dots {
+            font-size: 8px;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.25);
+        }
+
+        .lunar-dots .active {
+            color: rgba(255,255,255,0.95);
+            text-shadow: 0 0 8px rgba(255,255,255,0.5);
+        }
+
+        .lunar-dots .full {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .lunar-day {
+            font-size: 12px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.5);
+            margin-top: 10px;
+        }
+
+        .lunar-meaning {
+            font-size: 10px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            margin-top: 6px;
+        }
+
+        .lunar-sefirah {
+            font-size: 9px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.3);
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        /* Temperature - Primary data, bottom left */
+        .temp {
+            bottom: 40px;
+            left: 40px;
+            font-size: 72px;
+            font-weight: 200;
+            letter-spacing: -3px;
+            line-height: 1;
+        }
+
+        .feels {
+            bottom: 48px;
+            left: 175px;
+            font-size: 14px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Wind - Bottom right */
+        .wind {
+            bottom: 40px;
+            right: 40px;
+            text-align: right;
+        }
+
+        .wind-speed {
+            font-size: 28px;
+            font-weight: 200;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .wind-dir {
+            font-size: 12px;
+            font-weight: 400;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+
+        /* Zmanim Panel - Bottom right, replaces wind */
+        .zmanim {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            text-align: right;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .zmanim-label {
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+        }
+
+        .zmanim-time {
+            font-size: 28px;
+            font-weight: 200;
+            color: rgba(255,255,255,0.85);
+            margin-top: 2px;
+        }
+
+        .zmanim-greeting {
+            font-size: 12px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.5);
+            margin-top: 6px;
+            letter-spacing: 1px;
+        }
+
+        /* Condition - Top left */
+        .condition {
+            top: 30px;
+            left: 40px;
+            font-size: 10px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Atmosphere - Top right */
+        .atmosphere {
+            top: 30px;
+            right: 40px;
+            text-align: right;
+            font-size: 11px;
+            font-weight: 400;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .atmosphere span {
+            margin-left: 15px;
+        }
+
+        /* Omer Counter */
+        .omer-count {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .omer-count.visible {
+            opacity: 1;
+        }
+
+        .omer-number {
+            font-size: 12px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 1px;
+        }
+
+        .omer-sefirot {
+            font-size: 10px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 4px;
+        }
+
+        /* Parsha - Bottom left above temp */
+        .parsha {
+            position: fixed;
+            bottom: 130px;
+            left: 40px;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .parsha.visible {
+            opacity: 1;
+        }
+
+        .parsha-label {
+            font-size: 9px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+        }
+
+        .parsha-name {
+            font-size: 14px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.6);
+            margin-top: 2px;
+        }
+
+        /* Holiday display */
+        .holiday {
+            position: fixed;
+            top: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .holiday.visible {
+            opacity: 1;
+        }
+
+        .holiday-name {
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: rgba(255,220,180,0.7);
+            text-transform: uppercase;
+        }
+
+        /* Forecast - Bottom center strip */
+        .forecast {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        .forecast-segment {
+            width: 80px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .forecast-segment:last-child {
+            border-right: none;
+        }
+
+        .forecast-time {
+            font-size: 9px;
+            color: rgba(255,255,255,0.3);
+            font-weight: 400;
+        }
+
+        .forecast-temp {
+            font-size: 16px;
+            font-weight: 200;
+            color: rgba(255,255,255,0.8);
+            margin-top: 4px;
+        }
+
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            z-index: 200;
+            transition: opacity 0.5s;
+        }
+
+        .loading.hidden { opacity: 0; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="label temp" id="temp">--°</div>
+    <div class="label feels" id="feels">feels --°</div>
+
+    <div class="label wind" id="windPanel">
+        <div class="wind-speed" id="windSpeed">-- km/h</div>
+        <div class="wind-dir" id="windDir">--</div>
+    </div>
+
+    <div class="zmanim" id="zmanimPanel" style="display: none;">
+        <div class="zmanim-label" id="zmanimLabel">--</div>
+        <div class="zmanim-time" id="zmanimTime">--:--</div>
+        <div class="zmanim-greeting" id="zmanimGreeting"></div>
+    </div>
+
+    <div class="label condition" id="condition">--</div>
+
+    <div class="label atmosphere">
+        <span id="humidity">--%</span>
+        <span id="pressure">-- hPa</span>
+    </div>
+
+    <!-- Hebrew Date Display -->
+    <div class="hebrew-date" id="hebrewDate">
+        <div class="hebrew-date-hebrew" id="hebrewDateHebrew"></div>
+        <div class="hebrew-date-gregorian" id="hebrewDateGregorian"></div>
+    </div>
+
+    <!-- Month Theme -->
+    <div class="month-theme" id="monthTheme">
+        <div class="month-letter" id="monthLetter"></div>
+        <div class="month-theme-text" id="monthThemeText"></div>
+    </div>
+
+    <!-- Lunar Phase -->
+    <div class="lunar-phase" id="lunarPhase">
+        <div class="lunar-dots" id="lunarDots"></div>
+        <div class="lunar-day" id="lunarDay"></div>
+        <div class="lunar-meaning" id="lunarMeaning"></div>
+        <div class="lunar-sefirah" id="lunarSefirah"></div>
+    </div>
+
+    <!-- Omer Counter -->
+    <div class="omer-count" id="omerCount">
+        <div class="omer-number" id="omerNumber"></div>
+        <div class="omer-sefirot" id="omerSefirot"></div>
+    </div>
+
+    <!-- Parsha -->
+    <div class="parsha" id="parsha">
+        <div class="parsha-label">Parashat</div>
+        <div class="parsha-name" id="parshaName"></div>
+    </div>
+
+    <!-- Holiday -->
+    <div class="holiday" id="holiday">
+        <div class="holiday-name" id="holidayName"></div>
+    </div>
+
+    <div class="forecast" id="forecast"></div>
+
+    <div class="loading" id="loading">connecting</div>
+
+    <!-- Three.js for 3D moon -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Hebcal for Hebrew calendar -->
+    <script src="https://unpkg.com/@hebcal/core@5.4.1/dist/bundle.min.js"></script>
+
+    <script>
+    (function() {
+        const CONFIG = {
+            LAT: 43.6532,
+            LON: -79.3832,
+            TIMEZONE: 'America/Toronto',
+            LOCATION_NAME: 'Toronto',
+            API_KEY: 'a73511139cb03d0c96c105790e302b64'
+        };
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let W, H, dpr;
+
+        // State
+        let mouseX = W / 2, mouseY = H / 2;
+        let targetMouseX = W / 2, targetMouseY = H / 2;
+        let mouseDown = false;
+        let mouseGlowAlpha = 0.05;
+        let time = 0;
+
+        // Weather data
+        let temp = 15;
+        let feelsLike = 15;
+        let windSpeed = 10;
+        let windDeg = 270;
+        let humidity = 50;
+        let pressure = 1013;
+        let precipIntensity = 0;
+        let weatherId = 800;
+        let sunrise = 0;
+        let sunset = 0;
+
+        // Hebrew calendar state
+        let hebrewState = {
+            hdate: null,
+            dayOfMonth: 0,
+            monthName: '',
+            monthNameHebrew: '',
+            yearNum: 0,
+            isShabbat: false,
+            isYomTov: false,
+            isFriday: false,
+            candleLighting: null,
+            havdalah: null,
+            parsha: null,
+            omerDay: 0,
+            holiday: null
+        };
+
+        // Kabbalistic moon phase meanings
+        const MOON_PHASES = {
+            newMoon: {
+                name: 'Molad',
+                days: [1, 2],
+                meaning: 'Hiddenness / Potential',
+                sefirah: 'Malchut in concealment'
+            },
+            waxingCrescent: {
+                name: 'Growing',
+                days: [3, 4, 5, 6, 7],
+                meaning: 'Chesed / Expansion',
+                sefirah: 'Chesed ascending'
+            },
+            firstQuarter: {
+                name: 'Half Illuminated',
+                days: [8, 9, 10],
+                meaning: 'Tiferet / Balance',
+                sefirah: 'Harmony of forces'
+            },
+            waxingGibbous: {
+                name: 'Nearly Full',
+                days: [11, 12, 13, 14],
+                meaning: 'Approaching Fullness',
+                sefirah: 'Yesod gathering'
+            },
+            fullMoon: {
+                name: 'Full',
+                days: [15, 16],
+                meaning: 'Revelation / Malchut',
+                sefirah: 'Malchut illuminated'
+            },
+            waningGibbous: {
+                name: 'Diminishing',
+                days: [17, 18, 19, 20, 21],
+                meaning: 'Gevurah / Restraint',
+                sefirah: 'Contraction begins'
+            },
+            lastQuarter: {
+                name: 'Half Dark',
+                days: [22, 23, 24],
+                meaning: 'Din / Judgment',
+                sefirah: 'Gevurah prominent'
+            },
+            waningCrescent: {
+                name: 'Fading',
+                days: [25, 26, 27, 28, 29, 30],
+                meaning: 'Return / Teshuvah',
+                sefirah: 'Preparation for renewal'
+            }
+        };
+
+        // Month spiritual themes
+        const MONTH_THEMES = {
+            'Nisan': { theme: 'Redemption', letter: 'ה', letterName: 'Hei' },
+            'Iyyar': { theme: 'Healing', letter: 'ו', letterName: 'Vav' },
+            'Sivan': { theme: 'Revelation', letter: 'ז', letterName: 'Zayin' },
+            'Tamuz': { theme: 'Vision', letter: 'ח', letterName: 'Chet' },
+            'Av': { theme: 'Hearing', letter: 'ט', letterName: 'Tet' },
+            'Elul': { theme: 'Teshuvah', letter: 'י', letterName: 'Yud' },
+            'Tishrei': { theme: 'Beginning', letter: 'ל', letterName: 'Lamed' },
+            'Cheshvan': { theme: 'Depth', letter: 'נ', letterName: 'Nun' },
+            'Kislev': { theme: 'Dreams', letter: 'ס', letterName: 'Samech' },
+            'Tevet': { theme: 'Rectification', letter: 'ע', letterName: 'Ayin' },
+            'Sh\'vat': { theme: 'Renewal', letter: 'צ', letterName: 'Tzadi' },
+            'Adar': { theme: 'Joy', letter: 'ק', letterName: 'Kuf' },
+            'Adar I': { theme: 'Hidden Joy', letter: 'ק', letterName: 'Kuf' },
+            'Adar II': { theme: 'Revealed Joy', letter: 'ק', letterName: 'Kuf' }
+        };
+
+        // Sefirot for Omer counting
+        const SEFIROT = ['Chesed', 'Gevurah', 'Tiferet', 'Netzach', 'Hod', 'Yesod', 'Malchut'];
+
+        function getOmerSefirot(day) {
+            if (day < 1 || day > 49) return null;
+            const week = Math.floor((day - 1) / 7);
+            const dayInWeek = (day - 1) % 7;
+            return {
+                primary: SEFIROT[dayInWeek],
+                secondary: SEFIROT[week],
+                combined: `${SEFIROT[dayInWeek]} within ${SEFIROT[week]}`
+            };
+        }
+
+        function getMoonPhaseForDay(day) {
+            for (const [key, phase] of Object.entries(MOON_PHASES)) {
+                if (phase.days.includes(day)) {
+                    return phase;
+                }
+            }
+            return MOON_PHASES.newMoon;
+        }
+
+        // Particle pool
+        let particles = [];
+        const MAX_PARTICLES = 1500;
+
+        // Humidity field circles
+        let humidityCircles = [];
+
+        // Precipitation burst rotation
+        let precipRotation = 0;
+
+        function resize() {
+            dpr = window.devicePixelRatio || 1;
+            W = window.innerWidth;
+            H = window.innerHeight;
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            canvas.style.width = W + 'px';
+            canvas.style.height = H + 'px';
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
+
+            mouseX = W / 2;
+            mouseY = H / 2;
+            targetMouseX = W / 2;
+            targetMouseY = H / 2;
+
+            initHumidityCircles();
+        }
+
+        // Temperature to color mapping
+        function getTempColor(t) {
+            const norm = Math.max(0, Math.min(1, (t + 10) / 45));
+            const hue = 240 - norm * 220;
+            const sat = 30 + norm * 30;
+            const light = 10 + norm * 35;
+            return `hsl(${hue}, ${sat}%, ${light}%)`;
+        }
+
+        function getTempColorRGB(t) {
+            const norm = Math.max(0, Math.min(1, (t + 10) / 45));
+            const hue = 240 - norm * 220;
+            const h = hue / 360;
+            const s = (30 + norm * 30) / 100;
+            const l = (10 + norm * 35) / 100;
+
+            let r, g, b;
+            if (s === 0) {
+                r = g = b = l;
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            return { r: r * 255, g: g * 255, b: b * 255 };
+        }
+
+        // Turbulent noise field
+        const noiseScale = 0.003;
+        const noiseTime = { t: 0 };
+
+        function noise2D(x, y, t) {
+            return Math.sin(x * 1.2 + t) * Math.cos(y * 0.9 + t * 0.7) +
+                   Math.sin(x * 0.7 - y * 1.1 + t * 0.5) * 0.5 +
+                   Math.cos(x * 2.1 + y * 1.7 - t * 0.3) * 0.25;
+        }
+
+        // Turbulent wind particle class
+        class Particle {
+            constructor() {
+                this.reset(true);
+            }
+
+            reset(initial = false) {
+                const moveAngle = ((windDeg + 180) % 360) * Math.PI / 180;
+                const speed = Math.max(0.3, windSpeed * 0.15);
+
+                this.depth = 0.3 + Math.random() * 0.7;
+                this.x = initial ? Math.random() * W : (Math.cos(moveAngle) > 0 ? -80 : W + 80);
+                this.y = Math.random() * H;
+
+                const angleVariance = (Math.random() - 0.5) * 0.2;
+                this.baseAngle = moveAngle + angleVariance;
+                this.speed = speed * this.depth * (0.6 + Math.random() * 0.4);
+                this.vx = Math.cos(this.baseAngle) * this.speed;
+                this.vy = Math.sin(this.baseAngle) * this.speed;
+
+                this.size = (0.8 + Math.random() * 2.0) * this.depth;
+                this.alpha = (0.15 + Math.random() * 0.25) * this.depth;
+
+                this.turbulence = 0.1 + Math.random() * 0.2;
+
+                this.oscPhase = Math.random() * Math.PI * 2;
+                this.oscSpeed = 0.005 + Math.random() * 0.01;
+                this.oscAmp = 0.05 + Math.random() * 0.1;
+
+                this.life = 0;
+                this.maxLife = 800 + Math.random() * 1200;
+
+                this.trail = [];
+                this.maxTrail = 12 + Math.floor(Math.random() * 10);
+
+                this.hue = this.depth > 0.6 ? 30 : 210;
+                this.sat = 10 + Math.random() * 20;
+            }
+
+            update() {
+                this.life++;
+                this.oscPhase += this.oscSpeed;
+                noiseTime.t += 0.000002;
+
+                const nx = this.x * noiseScale * 0.5;
+                const ny = this.y * noiseScale * 0.5;
+                const n = noise2D(nx, ny, noiseTime.t * 10);
+
+                const osc = Math.sin(this.oscPhase) * this.oscAmp;
+                const turbAngle = n * Math.PI * this.turbulence + osc;
+                const turbVx = Math.cos(this.baseAngle + turbAngle) * this.speed;
+                const turbVy = Math.sin(this.baseAngle + turbAngle) * this.speed;
+
+                const dx = this.x - mouseX;
+                const dy = this.y - mouseY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const radius = mouseDown ? 200 : 150;
+
+                let mouseVx = 0, mouseVy = 0;
+                if (dist < radius && dist > 5) {
+                    const force = (1 - dist / radius) * (mouseDown ? 3 : 1.5) * this.depth;
+                    const repel = force * 0.3;
+                    const swirl = force * 0.2;
+                    mouseVx = (dx / dist) * repel + (-dy / dist) * swirl;
+                    mouseVy = (dy / dist) * repel + (dx / dist) * swirl;
+                }
+
+                this.vx += (turbVx - this.vx) * 0.02 + mouseVx * 0.05;
+                this.vy += (turbVy - this.vy) * 0.02 + mouseVy * 0.05;
+
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > this.maxTrail) this.trail.shift();
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < -100 || this.x > W + 100 || this.y < -100 || this.y > H + 100 || this.life > this.maxLife) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                const fadeIn = Math.min(1, this.life / 30);
+                const fadeOut = Math.min(1, (this.maxLife - this.life) / 80);
+                const alpha = this.alpha * fadeIn * fadeOut;
+
+                if (this.trail.length > 2) {
+                    ctx.beginPath();
+                    ctx.moveTo(this.trail[0].x, this.trail[0].y);
+
+                    for (let i = 1; i < this.trail.length - 1; i++) {
+                        const xc = (this.trail[i].x + this.trail[i + 1].x) / 2;
+                        const yc = (this.trail[i].y + this.trail[i + 1].y) / 2;
+                        ctx.quadraticCurveTo(this.trail[i].x, this.trail[i].y, xc, yc);
+                    }
+                    ctx.lineTo(this.x, this.y);
+
+                    ctx.strokeStyle = `hsla(${this.hue}, ${this.sat}%, 90%, ${alpha * 0.5})`;
+                    ctx.lineWidth = this.size * 0.8;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.stroke();
+                }
+
+                const glow = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 5);
+                glow.addColorStop(0, `hsla(${this.hue}, ${this.sat}%, 95%, ${alpha})`);
+                glow.addColorStop(0.3, `hsla(${this.hue}, ${this.sat}%, 90%, ${alpha * 0.5})`);
+                glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = glow;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const count = Math.floor(400 + (windSpeed / 30) * (MAX_PARTICLES - 400));
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function updateParticleCount() {
+            const targetCount = Math.floor(400 + (windSpeed / 30) * (MAX_PARTICLES - 400));
+            while (particles.length < targetCount) {
+                particles.push(new Particle());
+            }
+            while (particles.length > targetCount) {
+                particles.pop();
+            }
+            const moveAngle = ((windDeg + 180) % 360) * Math.PI / 180;
+            const speed = Math.max(0.5, windSpeed * 0.25);
+            particles.forEach(p => {
+                const angleVariance = (Math.random() - 0.5) * 0.3;
+                p.baseVx = Math.cos(moveAngle + angleVariance) * speed * p.depth;
+                p.baseVy = Math.sin(moveAngle + angleVariance) * speed * p.depth;
+            });
+        }
+
+        function initHumidityCircles() {
+            humidityCircles = [];
+            for (let i = 0; i < 15; i++) {
+                humidityCircles.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    radius: 150 + Math.random() * 200,
+                    phase: Math.random() * Math.PI * 2
+                });
+            }
+        }
+
+        // Draw temperature gradient background
+        function drawBackground() {
+            const color1 = getTempColorRGB(temp);
+            const color2 = getTempColorRGB(temp - 5);
+
+            const grad = ctx.createLinearGradient(0, 0, W, H);
+            grad.addColorStop(0, `rgb(${color2.r}, ${color2.g}, ${color2.b})`);
+            grad.addColorStop(1, `rgb(${color1.r}, ${color1.g}, ${color1.b})`);
+
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, H);
+
+            // Feels-like differential overlay
+            if (Math.abs(feelsLike - temp) > 2) {
+                const diff = feelsLike - temp;
+                const overlayColor = diff < 0
+                    ? `rgba(100, 150, 255, ${Math.min(0.15, Math.abs(diff) * 0.02)})`
+                    : `rgba(255, 150, 100, ${Math.min(0.15, Math.abs(diff) * 0.02)})`;
+
+                const overlayGrad = ctx.createLinearGradient(0, 0, 0, H * 0.3);
+                overlayGrad.addColorStop(0, overlayColor);
+                overlayGrad.addColorStop(1, 'transparent');
+                ctx.fillStyle = overlayGrad;
+                ctx.fillRect(0, 0, W, H * 0.3);
+            }
+
+            // Shabbat warmth overlay
+            if (hebrewState.isShabbat) {
+                const shabbatGlow = ctx.createRadialGradient(
+                    W / 2, H * 0.4, 0,
+                    W / 2, H * 0.4, Math.min(W, H) * 0.6
+                );
+                shabbatGlow.addColorStop(0, 'rgba(255, 220, 170, 0.04)');
+                shabbatGlow.addColorStop(0.5, 'rgba(255, 210, 150, 0.02)');
+                shabbatGlow.addColorStop(1, 'rgba(255, 200, 130, 0)');
+                ctx.fillStyle = shabbatGlow;
+                ctx.fillRect(0, 0, W, H);
+            }
+        }
+
+        // ============================================
+        // 3D MOON
+        // ============================================
+
+        let moonScene, moonCamera, moonRenderer, moonSphere, moonLight;
+        let moonCanvas, moonReady = false;
+        let texturesLoaded = { color: false, bump: false };
+
+        function initMoon3D() {
+            moonCanvas = document.createElement('canvas');
+            moonCanvas.width = 1024;
+            moonCanvas.height = 1024;
+
+            moonScene = new THREE.Scene();
+
+            const frustumSize = 2.2;
+            moonCamera = new THREE.OrthographicCamera(
+                -frustumSize / 2, frustumSize / 2,
+                frustumSize / 2, -frustumSize / 2,
+                0.1, 100
+            );
+            moonCamera.position.z = 5;
+
+            moonRenderer = new THREE.WebGLRenderer({
+                canvas: moonCanvas,
+                alpha: true,
+                antialias: true
+            });
+            moonRenderer.setSize(1024, 1024);
+            moonRenderer.setClearColor(0x000000, 0);
+            moonRenderer.outputEncoding = THREE.sRGBEncoding;
+
+            const geometry = new THREE.SphereGeometry(1, 128, 128);
+
+            const textureLoader = new THREE.TextureLoader();
+
+            const colorTexture = textureLoader.load(
+                'assets/moon_texture_4k.jpg',
+                (tex) => {
+                    tex.encoding = THREE.sRGBEncoding;
+                    texturesLoaded.color = true;
+                    checkReady();
+                },
+                undefined,
+                (err) => {
+                    console.error('Color texture failed:', err);
+                    textureLoader.load(
+                        'https://www.solarsystemscope.com/textures/download/2k_moon.jpg',
+                        (tex) => {
+                            tex.encoding = THREE.sRGBEncoding;
+                            moonSphere.material.map = tex;
+                            moonSphere.material.needsUpdate = true;
+                            texturesLoaded.color = true;
+                            checkReady();
+                        }
+                    );
+                }
+            );
+
+            const bumpTexture = textureLoader.load(
+                'assets/moon_bump_4k.jpg',
+                () => {
+                    texturesLoaded.bump = true;
+                    checkReady();
+                },
+                undefined,
+                (err) => console.warn('Bump texture failed:', err)
+            );
+
+            function checkReady() {
+                if (texturesLoaded.color) {
+                    moonReady = true;
+                }
+            }
+
+            const material = new THREE.MeshPhongMaterial({
+                map: colorTexture,
+                bumpMap: bumpTexture,
+                bumpScale: 0.015,
+                shininess: 0,
+                reflectivity: 0
+            });
+
+            moonSphere = new THREE.Mesh(geometry, material);
+            moonScene.add(moonSphere);
+
+            moonLight = new THREE.DirectionalLight(0xfffaf0, 2.5);
+            moonScene.add(moonLight);
+
+            const earthshine = new THREE.AmbientLight(0x1a2540, 0.08);
+            moonScene.add(earthshine);
+
+            // Glow shader
+            const glowGeometry = new THREE.SphereGeometry(1.0, 64, 64);
+            const glowMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    glowColor: { value: new THREE.Color(0xd0d8f0) },
+                    viewVector: { value: moonCamera.position }
+                },
+                vertexShader: `
+                    uniform vec3 viewVector;
+                    varying float intensity;
+                    void main() {
+                        vec3 vNormal = normalize(normalMatrix * normal);
+                        vec3 vNormel = normalize(normalMatrix * viewVector);
+                        float rim = 1.0 - dot(vNormal, vNormel);
+                        intensity = pow(rim, 4.0) * smoothstep(0.6, 1.0, rim);
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform vec3 glowColor;
+                    varying float intensity;
+                    void main() {
+                        float softIntensity = intensity * 0.25;
+                        vec3 glow = glowColor * softIntensity;
+                        gl_FragColor = vec4(glow, softIntensity * 0.3);
+                    }
+                `,
+                side: THREE.BackSide,
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                depthWrite: false
+            });
+            const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+            glowMesh.scale.multiplyScalar(1.04);
+            moonScene.add(glowMesh);
+
+            const outerGlowMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    glowColor: { value: new THREE.Color(0xe0e6ff) },
+                    viewVector: { value: moonCamera.position }
+                },
+                vertexShader: `
+                    uniform vec3 viewVector;
+                    varying float intensity;
+                    void main() {
+                        vec3 vNormal = normalize(normalMatrix * normal);
+                        vec3 vNormel = normalize(normalMatrix * viewVector);
+                        float rim = 1.0 - dot(vNormal, vNormel);
+                        intensity = pow(rim, 2.5) * smoothstep(0.4, 1.0, rim);
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform vec3 glowColor;
+                    varying float intensity;
+                    void main() {
+                        float softIntensity = intensity * 0.1;
+                        vec3 glow = glowColor * softIntensity;
+                        gl_FragColor = vec4(glow, softIntensity * 0.125);
+                    }
+                `,
+                side: THREE.BackSide,
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                depthWrite: false
+            });
+            const outerGlowMesh = new THREE.Mesh(glowGeometry.clone(), outerGlowMaterial);
+            outerGlowMesh.scale.multiplyScalar(1.08);
+            moonScene.add(outerGlowMesh);
+        }
+
+        // Astronomical calculations
+        function toRad(deg) { return deg * Math.PI / 180; }
+        function toDeg(rad) { return rad * 180 / Math.PI; }
+        function normalize(deg) { return ((deg % 360) + 360) % 360; }
+
+        function getJulianDate(date) {
+            const y = date.getUTCFullYear();
+            const m = date.getUTCMonth() + 1;
+            const d = date.getUTCDate();
+            const h = date.getUTCHours() + date.getUTCMinutes() / 60 + date.getUTCSeconds() / 3600;
+
+            let jd = 367 * y - Math.floor(7 * (y + Math.floor((m + 9) / 12)) / 4);
+            jd += Math.floor(275 * m / 9) + d + 1721013.5 + h / 24;
+            return jd;
+        }
+
+        function getMoonPhaseAngle(jd) {
+            const knownNewMoon = 2460638.783;
+            const synodicMonth = 29.530588853;
+            const daysSinceNew = jd - knownNewMoon;
+            let phase = ((daysSinceNew % synodicMonth) + synodicMonth) % synodicMonth;
+            phase = phase / synodicMonth;
+            const angle = phase * 360;
+            return angle;
+        }
+
+        function getMoonPosition(jd, lat, lon) {
+            const T = (jd - 2451545.0) / 36525;
+
+            const L = normalize(218.3164477 + 481267.88123421 * T);
+            const D = normalize(297.8501921 + 445267.1114034 * T);
+            const M = normalize(134.9633964 + 477198.8675055 * T);
+            const F = normalize(93.2720950 + 483202.0175233 * T);
+            const Ms = normalize(357.5291092 + 35999.0502909 * T);
+
+            const dL = 6.289 * Math.sin(toRad(M))
+                     + 1.274 * Math.sin(toRad(2 * D - M))
+                     + 0.658 * Math.sin(toRad(2 * D))
+                     + 0.214 * Math.sin(toRad(2 * M))
+                     - 0.186 * Math.sin(toRad(Ms))
+                     - 0.114 * Math.sin(toRad(2 * F));
+
+            const moonLon = L + dL;
+            const moonLat = 5.128 * Math.sin(toRad(F));
+
+            const obliquity = 23.439 - 0.00000036 * (jd - 2451545.0);
+            const ra = toDeg(Math.atan2(
+                Math.sin(toRad(moonLon)) * Math.cos(toRad(obliquity)) - Math.tan(toRad(moonLat)) * Math.sin(toRad(obliquity)),
+                Math.cos(toRad(moonLon))
+            ));
+            const dec = toDeg(Math.asin(
+                Math.sin(toRad(moonLat)) * Math.cos(toRad(obliquity)) +
+                Math.cos(toRad(moonLat)) * Math.sin(toRad(obliquity)) * Math.sin(toRad(moonLon))
+            ));
+
+            const gmst = normalize(280.46061837 + 360.98564736629 * (jd - 2451545.0));
+            const lst = normalize(gmst + lon);
+            const ha = lst - normalize(ra);
+
+            const altitude = toDeg(Math.asin(
+                Math.sin(toRad(lat)) * Math.sin(toRad(dec)) +
+                Math.cos(toRad(lat)) * Math.cos(toRad(dec)) * Math.cos(toRad(ha))
+            ));
+
+            const azimuth = toDeg(Math.atan2(
+                Math.sin(toRad(ha)),
+                Math.cos(toRad(ha)) * Math.sin(toRad(lat)) - Math.tan(toRad(dec)) * Math.cos(toRad(lat))
+            ));
+
+            return {
+                altitude,
+                azimuth: normalize(azimuth + 180)
+            };
+        }
+
+        function renderMoon3D() {
+            if (!moonReady || !moonSphere) return;
+
+            const now = new Date();
+            const jd = getJulianDate(now);
+
+            const phaseAngle = getMoonPhaseAngle(jd);
+
+            moonSphere.rotation.x = 0;
+            moonSphere.rotation.y = -Math.PI / 2;
+            moonSphere.rotation.z = 0;
+
+            const lightAngle = toRad(phaseAngle);
+            const lightX = Math.sin(lightAngle) * 10;
+            const lightY = 0;
+            const lightZ = -Math.cos(lightAngle) * 10;
+
+            moonLight.position.set(lightX, lightY, lightZ);
+
+            moonRenderer.render(moonScene, moonCamera);
+        }
+
+        if (typeof THREE !== 'undefined') {
+            initMoon3D();
+        }
+
+        function drawMoon() {
+            const now = new Date();
+            const jd = getJulianDate(now);
+            const moonPos = getMoonPosition(jd, CONFIG.LAT, CONFIG.LON);
+
+            if (moonPos.altitude < -5) return;
+
+            renderMoon3D();
+
+            const mx = W * 0.5;
+            const my = H * 0.42;
+            const R = Math.min(W, H) * 0.28;
+
+            let moonAlpha = 1;
+            if (moonPos.altitude < 10) {
+                moonAlpha = Math.max(0.2, (moonPos.altitude + 5) / 15);
+            }
+
+            if (moonReady && moonCanvas) {
+                ctx.globalAlpha = moonAlpha;
+                ctx.drawImage(moonCanvas, mx - R, my - R, R * 2, R * 2);
+                ctx.globalAlpha = 1;
+            } else {
+                ctx.fillStyle = `rgba(200, 200, 210, ${0.3 * moonAlpha})`;
+                ctx.beginPath();
+                ctx.arc(mx, my, R, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawHumidityField() {
+            const opacity = (humidity / 100) * 0.25;
+            if (opacity < 0.02) return;
+
+            humidityCircles.forEach((circle, i) => {
+                circle.phase += 0.001;
+                circle.x += Math.sin(circle.phase) * 0.1;
+                if (circle.x < -circle.radius) circle.x = W + circle.radius;
+                if (circle.x > W + circle.radius) circle.x = -circle.radius;
+
+                const grad = ctx.createRadialGradient(
+                    circle.x, circle.y, 0,
+                    circle.x, circle.y, circle.radius
+                );
+                grad.addColorStop(0, `rgba(255, 255, 255, ${opacity})`);
+                grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawPrecipitationBurst() {
+            if (precipIntensity < 0.1) return;
+
+            const centerX = W / 2;
+            const centerY = H / 2;
+            const lineCount = Math.floor(precipIntensity * 36);
+            const length = 80 + precipIntensity * 250;
+
+            precipRotation += 0.15;
+
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.03 + precipIntensity * 0.05})`;
+            ctx.lineWidth = 1;
+
+            for (let i = 0; i < lineCount; i++) {
+                const angle = ((i / lineCount) * 360 + precipRotation) * Math.PI / 180;
+                const x1 = centerX + Math.cos(angle) * 40;
+                const y1 = centerY + Math.sin(angle) * 40;
+                const x2 = centerX + Math.cos(angle) * length;
+                const y2 = centerY + Math.sin(angle) * length;
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+        }
+
+        function drawPressureBar() {
+            const minP = 980;
+            const maxP = 1030;
+            const norm = Math.max(0, Math.min(1, (pressure - minP) / (maxP - minP)));
+            const barHeight = H * (0.2 + norm * 0.5);
+            const barWidth = 3;
+            const x = W - 25;
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.fillRect(x, H - barHeight, barWidth, barHeight);
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            for (let i = 0; i <= 5; i++) {
+                const tickY = H - (H * 0.2) - (i / 5) * (H * 0.5);
+                ctx.fillRect(x - 5, tickY - 0.5, 4, 1);
+            }
+        }
+
+        function drawConditionIcon() {
+            const cx = W / 2;
+            const cy = 55;
+            const size = 24;
+            const t = time * 0.001;
+
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            if (weatherId === 800) {
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(t * 0.2);
+
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = 1.5;
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2;
+                    ctx.beginPath();
+                    ctx.moveTo(Math.cos(angle) * size * 0.5, Math.sin(angle) * size * 0.5);
+                    ctx.lineTo(Math.cos(angle) * size, Math.sin(angle) * size);
+                    ctx.stroke();
+                }
+
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(0, 0, size * 0.35, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+
+            } else if (weatherId >= 801 && weatherId < 900) {
+                const drift = Math.sin(t * 0.5) * 2;
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.beginPath();
+                ctx.arc(cx - 12 + drift, cy + 4, size * 0.5, 0, Math.PI * 2);
+                ctx.arc(cx + 2 + drift, cy + 2, size * 0.6, 0, Math.PI * 2);
+                ctx.arc(cx + 14 + drift, cy + 5, size * 0.45, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+                ctx.beginPath();
+                ctx.arc(cx - 8, cy - 2, size * 0.4, 0, Math.PI * 2);
+                ctx.arc(cx + 4, cy - 4, size * 0.55, 0, Math.PI * 2);
+                ctx.arc(cx + 16, cy, size * 0.38, 0, Math.PI * 2);
+                ctx.fill();
+
+            } else if (weatherId >= 500 && weatherId < 600 || weatherId >= 300 && weatherId < 400) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.lineWidth = 1.5;
+
+                for (let i = -2; i <= 2; i++) {
+                    const dropOffset = ((t * 80 + i * 30) % 30) - 5;
+                    const alpha = 0.2 + (1 - dropOffset / 25) * 0.3;
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                    ctx.beginPath();
+                    ctx.moveTo(cx + i * 10, cy - 10 + dropOffset);
+                    ctx.lineTo(cx + i * 10 + 3, cy + 8 + dropOffset);
+                    ctx.stroke();
+                }
+
+            } else if (weatherId >= 600 && weatherId < 700) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 1.5;
+
+                for (let j = 0; j < 3; j++) {
+                    const ox = (j - 1) * 18;
+                    const oy = Math.sin(t + j * 2) * 5;
+                    const rot = t * 0.5 + j;
+
+                    ctx.save();
+                    ctx.translate(cx + ox, cy + oy);
+                    ctx.rotate(rot);
+
+                    for (let i = 0; i < 6; i++) {
+                        const angle = (i / 6) * Math.PI * 2;
+                        ctx.beginPath();
+                        ctx.moveTo(0, 0);
+                        ctx.lineTo(Math.cos(angle) * 8, Math.sin(angle) * 8);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                }
+
+            } else if (weatherId >= 200 && weatherId < 300) {
+                const flash = Math.sin(t * 8) > 0.9 ? 0.8 : 0.4;
+                ctx.strokeStyle = `rgba(255, 255, 255, ${flash})`;
+                ctx.fillStyle = `rgba(255, 255, 255, ${flash * 0.5})`;
+                ctx.lineWidth = 2;
+
+                ctx.beginPath();
+                ctx.moveTo(cx + 5, cy - size);
+                ctx.lineTo(cx - 5, cy);
+                ctx.lineTo(cx + 2, cy);
+                ctx.lineTo(cx - 5, cy + size);
+                ctx.lineTo(cx + 8, cy - 2);
+                ctx.lineTo(cx, cy - 2);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+            } else if (weatherId >= 700 && weatherId < 800) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+                ctx.lineWidth = 2;
+
+                for (let i = -1; i <= 1; i++) {
+                    ctx.beginPath();
+                    for (let x = -size; x <= size; x += 2) {
+                        const wave = Math.sin(x * 0.15 + t + i) * 3;
+                        const px = cx + x;
+                        const py = cy + i * 10 + wave;
+                        if (x === -size) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
+                    }
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function drawParticles() {
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+        }
+
+        function drawMouseGlow() {
+            const targetAlpha = mouseDown ? 0.12 : 0.04;
+            mouseGlowAlpha += (targetAlpha - mouseGlowAlpha) * 0.1;
+
+            const radius = mouseDown ? 120 : 80;
+            const grad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, radius);
+            grad.addColorStop(0, `rgba(255, 255, 255, ${mouseGlowAlpha})`);
+            grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(mouseX, mouseY, radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Main render loop
+        function render() {
+            time++;
+
+            mouseX += (targetMouseX - mouseX) * 0.1;
+            mouseY += (targetMouseY - mouseY) * 0.1;
+
+            ctx.clearRect(0, 0, W, H);
+
+            drawBackground();
+            drawMoon();
+            drawHumidityField();
+            drawPrecipitationBurst();
+            drawParticles();
+            drawPressureBar();
+            drawConditionIcon();
+            drawMouseGlow();
+
+            requestAnimationFrame(render);
+        }
+
+        // ============================================
+        // HEBREW CALENDAR FUNCTIONS
+        // ============================================
+
+        function updateHebrewCalendar() {
+            if (typeof hebcal === 'undefined') {
+                console.warn('Hebcal not loaded');
+                return;
+            }
+
+            try {
+                const now = new Date();
+                const hdate = new hebcal.HDate(now);
+
+                hebrewState.hdate = hdate;
+                hebrewState.dayOfMonth = hdate.getDate();
+                hebrewState.monthName = hdate.getMonthName();
+                hebrewState.yearNum = hdate.getFullYear();
+
+                // Check day of week
+                const dayOfWeek = now.getDay();
+                hebrewState.isFriday = dayOfWeek === 5;
+                hebrewState.isShabbat = dayOfWeek === 6;
+
+                // Get events for today
+                const events = hebcal.HebrewCalendar.calendar({
+                    start: now,
+                    end: now,
+                    location: hebcal.Location.lookup('Toronto'),
+                    candlelighting: true,
+                    sedrot: true,
+                    omer: true
+                });
+
+                // Reset state
+                hebrewState.candleLighting = null;
+                hebrewState.havdalah = null;
+                hebrewState.parsha = null;
+                hebrewState.omerDay = 0;
+                hebrewState.holiday = null;
+
+                // Process events
+                events.forEach(ev => {
+                    const desc = ev.getDesc();
+
+                    if (desc.startsWith('Candle lighting')) {
+                        hebrewState.candleLighting = ev.eventTime;
+                    } else if (desc.startsWith('Havdalah')) {
+                        hebrewState.havdalah = ev.eventTime;
+                    } else if (desc.startsWith('Parashat')) {
+                        hebrewState.parsha = desc.replace('Parashat ', '');
+                    } else if (ev.omer) {
+                        hebrewState.omerDay = ev.omer;
+                    } else if (ev.getFlags() & (hebcal.flags.CHAG | hebcal.flags.MAJOR_FAST | hebcal.flags.MINOR_HOLIDAY)) {
+                        hebrewState.holiday = desc;
+                    }
+                });
+
+                updateHebrewUI();
+            } catch (e) {
+                console.error('Hebrew calendar error:', e);
+            }
+        }
+
+        function updateHebrewUI() {
+            const { dayOfMonth, monthName, yearNum, isShabbat, isFriday, candleLighting, havdalah, parsha, omerDay, holiday } = hebrewState;
+
+            // Hebrew date display
+            const hebrewDay = hebcal.gematriya(dayOfMonth);
+            const hebrewYear = hebcal.gematriya(yearNum % 1000);
+            document.getElementById('hebrewDateHebrew').textContent = `${hebrewDay} ${monthName} ${hebrewYear}`;
+            document.getElementById('hebrewDateGregorian').textContent = `${dayOfMonth} ${monthName} ${yearNum}`;
+
+            // Month theme
+            const theme = MONTH_THEMES[monthName];
+            if (theme) {
+                document.getElementById('monthLetter').textContent = theme.letter;
+                document.getElementById('monthThemeText').textContent = theme.theme;
+            }
+
+            // Lunar phase dots
+            updateLunarPhaseUI(dayOfMonth);
+
+            // Zmanim display
+            const windPanel = document.getElementById('windPanel');
+            const zmanimPanel = document.getElementById('zmanimPanel');
+
+            if (isFriday && candleLighting) {
+                windPanel.style.display = 'none';
+                zmanimPanel.style.display = 'block';
+                document.getElementById('zmanimLabel').textContent = 'Hadlakat Nerot';
+                document.getElementById('zmanimTime').textContent = formatTime(candleLighting);
+                document.getElementById('zmanimGreeting').textContent = 'Shabbat Shalom';
+            } else if (isShabbat && havdalah) {
+                windPanel.style.display = 'none';
+                zmanimPanel.style.display = 'block';
+                document.getElementById('zmanimLabel').textContent = 'Havdalah';
+                document.getElementById('zmanimTime').textContent = formatTime(havdalah);
+                document.getElementById('zmanimGreeting').textContent = 'Shavua Tov';
+            } else {
+                windPanel.style.display = 'block';
+                zmanimPanel.style.display = 'none';
+            }
+
+            // Parsha display
+            const parshaEl = document.getElementById('parsha');
+            if ((isShabbat || isFriday) && parsha) {
+                parshaEl.classList.add('visible');
+                document.getElementById('parshaName').textContent = parsha;
+            } else {
+                parshaEl.classList.remove('visible');
+            }
+
+            // Omer display
+            const omerEl = document.getElementById('omerCount');
+            if (omerDay > 0 && omerDay <= 49) {
+                omerEl.classList.add('visible');
+                document.getElementById('omerNumber').textContent = `Day ${omerDay} of the Omer`;
+                const sefirot = getOmerSefirot(omerDay);
+                document.getElementById('omerSefirot').textContent = sefirot.combined;
+            } else {
+                omerEl.classList.remove('visible');
+            }
+
+            // Holiday display
+            const holidayEl = document.getElementById('holiday');
+            if (holiday) {
+                holidayEl.classList.add('visible');
+                document.getElementById('holidayName').textContent = holiday;
+            } else {
+                holidayEl.classList.remove('visible');
+            }
+        }
+
+        function updateLunarPhaseUI(dayOfMonth) {
+            const totalDays = 30;
+            let dotsHtml = '';
+
+            for (let i = 1; i <= totalDays; i++) {
+                const isActive = i === dayOfMonth;
+                const isFull = i >= 14 && i <= 16;
+                let classes = [];
+                if (isActive) classes.push('active');
+                if (isFull) classes.push('full');
+                const symbol = isFull ? '●' : '○';
+                dotsHtml += `<span class="${classes.join(' ')}">${symbol}</span>`;
+            }
+
+            document.getElementById('lunarDots').innerHTML = dotsHtml;
+            document.getElementById('lunarDay').textContent = `Day ${dayOfMonth} of the Moon`;
+
+            const phase = getMoonPhaseForDay(dayOfMonth);
+            document.getElementById('lunarMeaning').textContent = phase.meaning;
+            document.getElementById('lunarSefirah').textContent = phase.sefirah;
+        }
+
+        function formatTime(date) {
+            if (!date) return '--:--';
+            return date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: false
+            });
+        }
+
+        // ============================================
+        // WEATHER FUNCTIONS
+        // ============================================
+
+        const CACHE_DURATION_WEATHER = 30 * 60 * 1000;
+        const CACHE_DURATION_FORECAST = 60 * 60 * 1000;
+
+        function getCachedData(key) {
+            try {
+                const cached = localStorage.getItem(key);
+                if (!cached) return null;
+                const { data, timestamp } = JSON.parse(cached);
+                const maxAge = key.includes('forecast') ? CACHE_DURATION_FORECAST : CACHE_DURATION_WEATHER;
+                if (Date.now() - timestamp > maxAge) {
+                    localStorage.removeItem(key);
+                    return null;
+                }
+                return data;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function setCachedData(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now() }));
+            } catch (e) {
+                console.warn('Cache write failed:', e);
+            }
+        }
+
+        function applyWeatherData(data) {
+            temp = data.main.temp;
+            feelsLike = data.main.feels_like;
+            windSpeed = data.wind.speed * 3.6;
+            windDeg = data.wind.deg || 270;
+            humidity = data.main.humidity;
+            pressure = data.main.pressure;
+            weatherId = data.weather[0].id;
+
+            if (weatherId >= 200 && weatherId < 300) precipIntensity = 8;
+            else if (weatherId >= 300 && weatherId < 400) precipIntensity = 2;
+            else if (weatherId >= 500 && weatherId < 510) precipIntensity = 4;
+            else if (weatherId >= 510 && weatherId < 520) precipIntensity = 6;
+            else if (weatherId >= 520 && weatherId < 600) precipIntensity = 9;
+            else if (weatherId >= 600 && weatherId < 700) precipIntensity = 5;
+            else if (weatherId >= 700 && weatherId < 800) precipIntensity = 1;
+            else precipIntensity = 0;
+
+            document.getElementById('temp').textContent = Math.round(temp) + '°';
+            document.getElementById('feels').textContent = 'feels ' + Math.round(feelsLike) + '°';
+            document.getElementById('windSpeed').textContent = Math.round(windSpeed) + ' km/h';
+            document.getElementById('windDir').textContent = getWindDir(windDeg);
+            document.getElementById('condition').textContent = data.weather[0].description;
+            document.getElementById('humidity').textContent = humidity + '%';
+            document.getElementById('pressure').textContent = pressure + ' hPa';
+
+            updateParticleCount();
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        async function fetchWeather() {
+            const cacheKey = 'lunar_weather_current';
+            const cached = getCachedData(cacheKey);
+
+            if (cached) {
+                applyWeatherData(cached);
+                return;
+            }
+
+            try {
+                const res = await fetch(
+                    `https://api.openweathermap.org/data/2.5/weather?lat=${CONFIG.LAT}&lon=${CONFIG.LON}&appid=${CONFIG.API_KEY}&units=metric`
+                );
+                const data = await res.json();
+
+                if (data.main) {
+                    setCachedData(cacheKey, data);
+                    applyWeatherData(data);
+                }
+            } catch (e) {
+                console.error('Weather error:', e);
+            }
+        }
+
+        async function fetchForecast() {
+            const cacheKey = 'lunar_weather_forecast';
+            const cached = getCachedData(cacheKey);
+
+            if (cached) {
+                renderForecast(cached.list.slice(0, 8));
+                return;
+            }
+
+            try {
+                const res = await fetch(
+                    `https://api.openweathermap.org/data/2.5/forecast?lat=${CONFIG.LAT}&lon=${CONFIG.LON}&appid=${CONFIG.API_KEY}&units=metric`
+                );
+                const data = await res.json();
+
+                if (data.list) {
+                    setCachedData(cacheKey, data);
+                    renderForecast(data.list.slice(0, 8));
+                }
+            } catch (e) {
+                console.error('Forecast error:', e);
+            }
+        }
+
+        function renderForecast(hours) {
+            const container = document.getElementById('forecast');
+            container.innerHTML = '';
+
+            hours.forEach((hour, i) => {
+                const div = document.createElement('div');
+                div.className = 'forecast-segment';
+
+                const time = new Date(hour.dt * 1000);
+                const timeStr = time.getHours().toString().padStart(2, '0') + ':00';
+                const t = Math.round(hour.main.temp);
+
+                const color = getTempColor(hour.main.temp);
+                const opacity = 0.7 - (i / 8) * 0.4;
+                div.style.background = color;
+                div.style.opacity = opacity;
+
+                div.innerHTML = `
+                    <div class="forecast-time">${timeStr}</div>
+                    <div class="forecast-temp">${t}°</div>
+                `;
+
+                container.appendChild(div);
+            });
+        }
+
+        function getWindDir(deg) {
+            const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+            return dirs[Math.round(deg / 45) % 8];
+        }
+
+        // Events
+        function initEvents() {
+            window.addEventListener('resize', resize);
+
+            document.addEventListener('mousemove', e => {
+                targetMouseX = e.clientX;
+                targetMouseY = e.clientY;
+            });
+
+            document.addEventListener('mousedown', () => {
+                mouseDown = true;
+            });
+
+            document.addEventListener('mouseup', () => {
+                mouseDown = false;
+            });
+
+            document.addEventListener('touchmove', e => {
+                if (e.touches.length) {
+                    targetMouseX = e.touches[0].clientX;
+                    targetMouseY = e.touches[0].clientY;
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchstart', () => {
+                mouseDown = true;
+            }, { passive: true });
+
+            document.addEventListener('touchend', () => {
+                mouseDown = false;
+            });
+        }
+
+        // Initialize
+        function init() {
+            resize();
+            initEvents();
+            initParticles();
+
+            render();
+            fetchWeather();
+            fetchForecast();
+
+            // Hebrew calendar
+            updateHebrewCalendar();
+            setInterval(updateHebrewCalendar, 60000); // Update every minute
+
+            setInterval(fetchWeather, CACHE_DURATION_WEATHER);
+            setInterval(fetchForecast, CACHE_DURATION_FORECAST);
+        }
+
+        init();
+    })();
+    </script>
+</body>
+</html>
